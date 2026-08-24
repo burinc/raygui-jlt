@@ -702,3 +702,20 @@
            max 1.0}}]
   (pos? (gui-slider-bar (bounds! x y w h) left right (ptr cell)
                         (double min) (double max))))
+
+(defn progress-bar!
+  "GuiProgressBar. :x :y :w :h :left :right :cell (a :float cell) :min :max.
+
+  Display-only in effect: raygui still takes the value by pointer, but nothing
+  the user does moves it. The caller advances the cell."
+  [& {:keys [x y w h left right cell min max]
+      :or {x 0
+           y 0
+           w 200
+           h 20
+           left ""
+           right ""
+           min 0.0
+           max 1.0}}]
+  (pos? (gui-progress-bar (bounds! x y w h) left right (ptr cell)
+                          (double min) (double max))))

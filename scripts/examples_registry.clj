@@ -17,7 +17,8 @@
    ["text-box" "text-box" "inputs" "an editable text box with edit mode"]
    ["text-input-box" "text-input-box" "inputs" "a modal text prompt with secret toggle"]
    ["spinner-value-box" "spinner-value-box" "inputs" "spinner and value box, clamped and typed"]
-   ["sliders" "sliders" "inputs" "slider, slider bar and their value cells"]])
+   ["sliders" "sliders" "inputs" "slider, slider bar and their value cells"]
+   ["progress-bar" "progress-bar" "inputs" "a progress bar driven by a timer"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

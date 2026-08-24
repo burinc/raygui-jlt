@@ -191,6 +191,10 @@
   {:doc "▶ slider, slider bar and their value cells"
    :task (run-example "sliders")}
 
+  progress-bar
+  {:doc "▶ a progress bar driven by a timer"
+   :task (run-example "progress-bar")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

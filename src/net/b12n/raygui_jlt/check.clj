@@ -13,6 +13,7 @@
    [net.b12n.raygui-jlt.basic-controls]
    [net.b12n.raygui-jlt.icon-buttons]
    [net.b12n.raygui-jlt.labels-lines]
+   [net.b12n.raygui-jlt.progress-bar]
    [net.b12n.raygui-jlt.raygui]
    [net.b12n.raygui-jlt.raylib]
    [net.b12n.raygui-jlt.sliders]
