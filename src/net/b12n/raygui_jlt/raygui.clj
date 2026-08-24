@@ -598,8 +598,10 @@
 ;; Controls in this section have an EDIT MODE the application owns. raygui does
 ;; not remember whether a box is being edited: the control returns non-zero when
 ;; it wants the mode toggled, and the caller flips its own :bool cell. That is
-;; the immediate-mode bargain, and it is why these wrappers return the raw
-;; result rather than a boolean.
+;; the immediate-mode bargain. text-box!, spinner! and value-box! turn that
+;; non-zero result into a boolean via pos?; text-input-box! is the exception
+;; and returns the raw result, since its result is a button index rather than
+;; an edit-mode toggle.
 
 (defn text-box!
   "GuiTextBox. :x :y :w :h :cell (a :text cell) :edit? (a bool).
@@ -618,9 +620,18 @@
   "GuiTextInputBox, a modal text prompt. :x :y :w :h :title :message :cell
   :buttons :result :secret.
 
-  :cell is a :text cell for the entry, :result an :int cell receiving the index
-  of the button pressed (-1 while none is), and :secret an optional :bool cell
-  which, when supplied, adds a show/hide toggle and masks the entry.
+  :cell is a :text cell for the entry, :result an :int cell receiving which
+  button was pressed, and :secret an optional :bool cell which, when supplied,
+  adds a show/hide toggle and masks the entry.
+
+  THE :result ENCODING IS 1-BASED, AND 0 IS NOT A BUTTON. From
+  vendor/raygui.h: the window's close (X) icon writes 0, and the i-th button in
+  the semicolon-separated list writes i+1. So with :buttons \"Cancel;OK\",
+  Cancel is 1 and OK is 2; 0 means the dialog was dismissed via the X. The
+  control never writes a negative value, so initialise the cell to -1 to mean
+  \"nothing pressed yet\" and treat >= 0 as answered.
+
+  GuiMessageBox uses the identical encoding.
 
   :buttons is semicolon-separated, the same convention as the toggle group.
   Returns the raw result."
@@ -640,8 +651,12 @@
   "GuiSpinner, a number with increment/decrement buttons.
   :x :y :w :h :text :cell (an :int cell) :min :max :edit?.
 
-  Returns truthy when the control wants its edit mode toggled. raygui clamps to
-  :min/:max itself."
+  Returns truthy when the control wants its edit mode toggled.
+
+  raygui clamps to :min/:max, but NOT while the user is mid-edit: the header
+  says \"Values are not clamped until user input finishes\" and its clamp lines
+  are commented out. So a cell CAN transiently hold an out-of-range value during
+  typing, and settles in range when editing ends."
   [& {:keys [x y w h text cell min max edit?]
       :or {x 0
            y 0
@@ -707,7 +722,8 @@
   "GuiProgressBar. :x :y :w :h :left :right :cell (a :float cell) :min :max.
 
   Display-only in effect: raygui still takes the value by pointer, but nothing
-  the user does moves it. The caller advances the cell."
+  the user does moves it. The caller advances the cell. Returns true on change,
+  like its siblings, though no example reads it."
   [& {:keys [x y w h left right cell min max]
       :or {x 0
            y 0

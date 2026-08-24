@@ -3,8 +3,9 @@
 
   GuiSpinner has increment and decrement buttons; GuiValueBox is the same field
   without them, for typing a number directly. Both clamp to their own min and
-  max, so the cell can never hold an out-of-range value: the clamping lives in
-  raygui, not in the caller.
+  max once editing ends, but not while typing: the header says clamping happens
+  only when user input finishes, so the cell can transiently hold an
+  out-of-range value mid-edit.
 
   Both carry the edit-mode pattern from text-box. Click either to start typing.
   See README.md."
@@ -44,7 +45,7 @@
         (rg/label! :x 20 :y 192 :w 420 :h 24
                    :text (str "qty=" (rg/value qty) "   port=" (rg/value port)))
         (rg/label! :x 20 :y 218 :w 420 :h 24
-                   :text "raygui clamps to min/max; the cell cannot go outside")
+                   :text "raygui clamps min/max when editing ends, not while typing")
 
         (rl/maybe-screenshot! frame 30)
         (rl/end-drawing)

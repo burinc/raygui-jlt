@@ -43,11 +43,13 @@
                               :buttons "Cancel;OK"
                               :result result
                               :secret secret)
-          ;; -1 means no button pressed yet. 0 is Cancel, 1 is OK: the index
-          ;; into the semicolon-separated :buttons string.
+          ;; The cell starts at -1 meaning "nothing pressed". raygui writes 0
+          ;; for the window's X, and a ONE-BASED button index otherwise, so with
+          ;; "Cancel;OK" Cancel is 1 and OK is 2. Getting this backwards makes
+          ;; both buttons do the other one's job, silently.
           (when (>= (rg/value result) 0)
             (rg/reset-cell! answer
-                            (if (= 1 (rg/value result))
+                            (if (= 2 (rg/value result))
                               (str "OK: " (rg/value entry))
                               "cancelled"))
             (rg/reset-cell! showing false)))
