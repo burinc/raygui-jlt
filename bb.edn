@@ -64,7 +64,24 @@
       "Build the native library if it is missing, so a fresh clone can run an
        example without a separate setup step."
       []
-      (when-not (lib-built?) (build-lib!))))
+      (when-not (lib-built?) (build-lib!)))
+
+    (require '[examples-registry :as reg])
+
+    (def by-name
+      (into {} (map (fn [r] [(nth r 0) r]) reg/examples)))
+
+    (defn run-example
+      [name]
+      (let [row (get by-name name)]
+        (if row
+          (do (ensure-lib!)
+              (println (str "▶ " name))
+              (shell "jolt" (str "-M:" (nth row 1))))
+          (do (binding [*out* *err*]
+                (println (str "Unknown example: " (pr-str name)))
+                (println "Run `bb examples` to see the list."))
+              (System/exit 1))))))
 
   lib:build
   {:doc "Compile vendor/raygui.h into lib/libraygui.{dylib,so}"
@@ -88,4 +105,39 @@
        (println "         build it: bb lib:build"))
      (when (and rl (lib-built?))
        (println "")
-       (println "Both present. `bb check` will compile the suite.")))}}}
+       (println "Both present. `bb check` will compile the suite.")))}
+
+  check
+  {:doc "Headless compile-check of every example (no window)"
+   :task (do (ensure-lib!) (shell "jolt" "-M:check"))}
+
+  examples
+  {:doc "Flat list of every example with its description"
+   :task
+   (let [w (reg/max-name-width)
+         over (reg/check-descriptions)]
+     (doseq [row reg/examples]
+       (println (str "  " (reg/pad (nth row 0) w) "  " (nth row 3))))
+     (println "")
+     (println (str "  " (count reg/examples) " examples"))
+     (when (seq over)
+       (binding [*out* *err*]
+         (println "")
+         (println "Descriptions over the 49-character cap:")
+         (doseq [[n len] over] (println (str "  " n " (" len ")")))
+         (System/exit 1))))}
+
+  info
+  {:doc "Grouped cheat-sheet"
+   :task
+   (let [w (reg/max-name-width)
+         grouped (reg/by-group)]
+     (doseq [g reg/groups]
+       (when (seq (get grouped g))
+         (println (str "\n" g))
+         (doseq [row (get grouped g)]
+           (println (str "  bb " (reg/pad (nth row 0) w) "  " (nth row 3)))))))}
+
+  basic-controls
+  {:doc "▶ button, label and a live click counter"
+   :task (run-example "basic-controls")}}}

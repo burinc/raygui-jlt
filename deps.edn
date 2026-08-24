@@ -16,4 +16,5 @@
                 :darwin ["lib/libraygui.dylib"]
                 :linux  ["lib/libraygui.so"]}]
 
- :aliases {:check {:main-opts ["-m" "net.b12n.raygui-jlt.check"]}}}
+ :aliases {:check {:main-opts ["-m" "net.b12n.raygui-jlt.check"]}
+           :basic-controls {:main-opts ["-m" "net.b12n.raygui-jlt.basic-controls"]}}}

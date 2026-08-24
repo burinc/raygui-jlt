@@ -1,0 +1,19 @@
+(ns net.b12n.raygui-jlt.check
+  "Headless compile-check (`joltc -M:check`).
+
+  Requires every example namespace, which compiles each one (macro-expansion,
+  var resolution, arity checks) WITHOUT opening a window — so the whole suite can
+  be verified with no display attached.
+
+  It does NOT exercise rendering, and for a GUI toolkit that gap is the whole
+  point of the screenshot gate: a control drawn at the wrong bounds, or a style
+  that never loaded, compiles perfectly and passes this check. See each example's
+  RAYGUI_APP_AUTO_QUIT_MS + RAYGUI_APP_SHOT smoke."
+  (:require
+   [net.b12n.raygui-jlt.basic-controls]
+   [net.b12n.raygui-jlt.raygui]
+   [net.b12n.raygui-jlt.raylib]))
+
+(defn -main
+  [& _]
+  (println "net.b12n.raygui-jlt: all example namespaces compiled OK"))

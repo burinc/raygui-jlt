@@ -418,3 +418,53 @@
   []
   (gui-load-style-default)
   nil)
+
+;; --- kwarg API: basics -------------------------------------------------------
+;; raygui's C functions are positional and every one leads with a Rectangle;
+;; these wrappers take :x :y :w :h plus named arguments so example code reads
+;; self-descriptively. The raw bindings above remain the FFI boundary.
+;;
+;; Return convention: controls whose only outcome is "was it pressed" return a
+;; boolean. Controls with an edit mode or a richer result return the raw
+;; GuiResult int, so the caller can distinguish RESULT-CHANGED from
+;; RESULT-TAB-CLOSE.
+
+(defn label!
+  "GuiLabel. :x :y :w :h :text."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 120
+           h 24
+           text ""}}]
+  (gui-label (bounds! x y w h) text))
+
+(defn button!
+  "GuiButton. :x :y :w :h :text. True on the frame it is clicked."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 120
+           h 30
+           text "Button"}}]
+  (= RESULT-PRESSED (gui-button (bounds! x y w h) text)))
+
+(defn label-button!
+  "GuiLabelButton. :x :y :w :h :text. True on the frame it is clicked."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 120
+           h 24
+           text "Label"}}]
+  (= RESULT-PRESSED (gui-label-button (bounds! x y w h) text)))
+
+(defn check-box!
+  "GuiCheckBox. :x :y :w :h :text :cell (a :bool cell). True on change."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 20
+           h 20
+           text ""}}]
+  (pos? (gui-check-box (bounds! x y w h) text (ptr cell))))
