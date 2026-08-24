@@ -11,6 +11,7 @@
 ;; bb.edn's `examples` task runs so the cap is enforced rather than remembered.
 (def examples
   [["basic-controls" "basic-controls" "basics" "button, label and a live click counter"]
+   ["icon-buttons" "icon-buttons" "basics" "the embedded 1-bit icon pack on buttons"]
    ["labels-lines" "labels-lines" "basics" "labels, separators and a status bar"]
    ["toggles" "toggles" "basics" "toggle, toggle group and toggle slider"]])
 

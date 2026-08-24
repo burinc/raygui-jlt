@@ -163,6 +163,10 @@
   {:doc "▶ button, label and a live click counter"
    :task (run-example "basic-controls")}
 
+  icon-buttons
+  {:doc "▶ the embedded 1-bit icon pack on buttons"
+   :task (run-example "icon-buttons")}
+
   labels-lines
   {:doc "▶ labels, separators and a status bar"
    :task (run-example "labels-lines")}

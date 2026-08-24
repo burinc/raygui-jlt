@@ -559,3 +559,37 @@
   control inherits it."
   [control alignment]
   (gui-set-style control TEXT-ALIGNMENT alignment))
+
+;; GuiIconName — a few of the 256 embedded 1-bit icons. Values read from
+;; vendor/raygui.h; the full set is in that enum.
+(def ^:const ICON-NONE          0)   (def ^:const ICON-FOLDER-OPEN 3)
+(def ^:const ICON-FILE-SAVE     6)   (def ^:const ICON-OK-TICK     112)
+(def ^:const ICON-CROSS         113) (def ^:const ICON-ARROW-RIGHT 115)
+(def ^:const ICON-PLAYER-PLAY   131) (def ^:const ICON-GEAR        141)
+(def ^:const ICON-BIN           143) (def ^:const ICON-STAR        157)
+(def ^:const ICON-HEART         186) (def ^:const ICON-INFO        191)
+(def ^:const ICON-WARNING       220)
+
+(defn icon-text
+  "GuiIconText — `text` with an icon marker prepended, for any control's :text.
+
+  raygui renders a leading `#nnn#` in a control's text as icon nnn, so this is
+  how an icon reaches a button: the button API is unchanged, only its text is."
+  [icon-id text]
+  (gui-icon-text icon-id text))
+
+(defn draw-icon!
+  "GuiDrawIcon, an icon drawn directly rather than inside a control.
+  :icon :x :y :size :color."
+  [& {:keys [icon x y size color]
+      :or {icon ICON-NONE
+           x 0
+           y 0
+           size 1
+           color rl/DARKGRAY}}]
+  (gui-draw-icon icon x y size color))
+
+(defn set-icon-scale!
+  "GuiSetIconScale. Global and persistent, like every style property."
+  [scale]
+  (gui-set-icon-scale scale))

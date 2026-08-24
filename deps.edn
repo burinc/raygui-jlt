@@ -18,5 +18,6 @@
 
  :aliases {:check {:main-opts ["-m" "net.b12n.raygui-jlt.check"]}
            :basic-controls {:main-opts ["-m" "net.b12n.raygui-jlt.basic-controls"]}
-           :toggles {:main-opts ["-m" "net.b12n.raygui-jlt.toggles"]}
-           :labels-lines {:main-opts ["-m" "net.b12n.raygui-jlt.labels-lines"]}}}
+           :icon-buttons {:main-opts ["-m" "net.b12n.raygui-jlt.icon-buttons"]}
+           :labels-lines {:main-opts ["-m" "net.b12n.raygui-jlt.labels-lines"]}
+           :toggles {:main-opts ["-m" "net.b12n.raygui-jlt.toggles"]}}}
