@@ -1,0 +1,91 @@
+;; Babashka runner for the net.b12n.raygui-jlt raygui examples.
+;;
+;;   bb lib:build       compile vendor/raygui.h -> lib/libraygui.dylib
+;;   bb lib:check       is raylib installed? is libraygui built?
+;;
+;; NOTE: task bodies are read by babashka's EDN reader, which does NOT support
+;; #"regex", @deref, or #(...) reader macros — use (re-pattern "..."),
+;; (deref ...) and (fn [x] ...). Run `bb tasks` after editing to confirm the
+;; file still parses.
+{:min-bb-version "1.3.0"
+ :paths ["scripts"]
+
+ :tasks
+ {:init
+  (do
+    (require '[babashka.fs :as fs]
+             '[clojure.string :as str])
+
+    (def repo-root (str (fs/parent (fs/absolutize "bb.edn"))))
+
+    (defn mac? [] (str/starts-with? (System/getProperty "os.name") "Mac"))
+
+    (def lib-path
+      (str repo-root "/lib/libraygui." (if (mac?) "dylib" "so")))
+
+    (defn lib-built? [] (fs/exists? lib-path))
+
+    ;; Homebrew's include/lib dirs are not on the compiler's default search
+    ;; path, so they are named explicitly. Linux uses the distro's default
+    ;; paths plus whatever pkg-config would report; these flags are written
+    ;; from the macOS ones and are UNTESTED on Linux.
+    (defn build-argv
+      []
+      (if (mac?)
+        ["cc" "-O2" "-dynamiclib" "-fPIC" "-DBUILD_LIBTYPE_SHARED"
+         "-I" (str repo-root "/vendor")
+         "-I" "/opt/homebrew/include"
+         "-L" "/opt/homebrew/lib" "-lraylib"
+         "-framework" "CoreVideo" "-framework" "IOKit"
+         "-framework" "Cocoa" "-framework" "OpenGL"
+         "-o" lib-path (str repo-root "/vendor/raygui_impl.c")]
+        ["cc" "-O2" "-shared" "-fPIC" "-DBUILD_LIBTYPE_SHARED"
+         "-I" (str repo-root "/vendor")
+         "-lraylib" "-lGL" "-lm" "-lpthread" "-ldl" "-lrt" "-lX11"
+         "-o" lib-path (str repo-root "/vendor/raygui_impl.c")]))
+
+    (defn build-lib!
+      []
+      (fs/create-dirs (str repo-root "/lib"))
+      (println (str "Compiling vendor/raygui_impl.c -> " lib-path))
+      (let [{:keys [exit]} (apply shell {:continue true} (build-argv))]
+        (if (zero? exit)
+          (println (str "OK  " lib-path))
+          (do (binding [*out* *err*]
+                (println "")
+                (println "libraygui build FAILED.")
+                (println "Most likely cause: raylib's headers are not where the")
+                (println "compiler looked. Check `brew list --versions raylib`,")
+                (println "and if it is installed but the build still cannot find")
+                (println "raylib.h, try `brew link raylib`."))
+              (System/exit 1)))))
+
+    (defn ensure-lib!
+      "Build the native library if it is missing, so a fresh clone can run an
+       example without a separate setup step."
+      []
+      (when-not (lib-built?) (build-lib!))))
+
+  lib:build
+  {:doc "Compile vendor/raygui.h into lib/libraygui.{dylib,so}"
+   :task (build-lib!)}
+
+  lib:check
+  {:doc "Is raylib installed? Is libraygui built? (read-only)"
+   :task
+   (let [rl (some (fn [p] (when (fs/exists? p) p))
+                  ["/opt/homebrew/lib/libraylib.dylib"
+                   "/usr/local/lib/libraylib.dylib"
+                   "/usr/lib/libraylib.so"
+                   "/usr/local/lib/libraylib.so"])]
+     (println (str "raylib   " (if rl (str "found: " rl) "NOT FOUND")))
+     (when-not rl
+       (println "         install it: brew install raylib  (macOS)"))
+     (println (str "libraygui " (if (lib-built?)
+                                  (str "built: " lib-path)
+                                  "not built")))
+     (when-not (lib-built?)
+       (println "         build it: bb lib:build"))
+     (when (and rl (lib-built?))
+       (println "")
+       (println "Both present. `bb check` will compile the suite.")))}}}
