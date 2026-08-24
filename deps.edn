@@ -1,0 +1,19 @@
+{:paths ["src"]
+
+ ;; Both libraries are called directly over their C ABI via jolt.ffi.
+ ;;
+ ;; raylib is the system library — install with `brew install raylib` on macOS
+ ;; or your distro's raylib package. Chez's dlopen default search path does not
+ ;; include Homebrew's lib dir, so the absolute path is listed first.
+ ;;
+ ;; raygui is built by `bb lib:build` from the vendored header, because raygui
+ ;; is header-only and ships no shared library. The path is repo-relative, so
+ ;; examples must be run from the repo root (which every `bb` task does).
+ :jolt/native [{:name "raylib"
+                :darwin ["/opt/homebrew/lib/libraylib.dylib" "libraylib.dylib"]
+                :linux  ["libraylib.so.6" "libraylib.so"]}
+               {:name "raygui"
+                :darwin ["lib/libraygui.dylib"]
+                :linux  ["lib/libraygui.so"]}]
+
+ :aliases {:check {:main-opts ["-m" "net.b12n.raygui-jlt.check"]}}}
