@@ -16,7 +16,8 @@
    ["toggles" "toggles" "basics" "toggle, toggle group and toggle slider"]
    ["text-box" "text-box" "inputs" "an editable text box with edit mode"]
    ["text-input-box" "text-input-box" "inputs" "a modal text prompt with secret toggle"]
-   ["spinner-value-box" "spinner-value-box" "inputs" "spinner and value box, clamped and typed"]])
+   ["spinner-value-box" "spinner-value-box" "inputs" "spinner and value box, clamped and typed"]
+   ["sliders" "sliders" "inputs" "slider, slider bar and their value cells"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

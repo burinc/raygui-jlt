@@ -669,3 +669,36 @@
            max 100
            edit? false}}]
   (pos? (gui-value-box (bounds! x y w h) text (ptr cell) min max (if edit? 1 0))))
+
+(defn slider!
+  "GuiSlider, a draggable handle. :x :y :w :h :left :right :cell (a :float cell)
+  :min :max.
+
+  :left and :right are the captions outside each end of the track, not the
+  range: the range is :min/:max. True on change."
+  [& {:keys [x y w h left right cell min max]
+      :or {x 0
+           y 0
+           w 200
+           h 20
+           left ""
+           right ""
+           min 0.0
+           max 1.0}}]
+  (pos? (gui-slider (bounds! x y w h) left right (ptr cell)
+                    (double min) (double max))))
+
+(defn slider-bar!
+  "GuiSliderBar, a slider whose track fills from the left. :x :y :w :h :left
+  :right :cell (a :float cell) :min :max. True on change."
+  [& {:keys [x y w h left right cell min max]
+      :or {x 0
+           y 0
+           w 200
+           h 20
+           left ""
+           right ""
+           min 0.0
+           max 1.0}}]
+  (pos? (gui-slider-bar (bounds! x y w h) left right (ptr cell)
+                        (double min) (double max))))

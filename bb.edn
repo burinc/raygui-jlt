@@ -187,6 +187,10 @@
   {:doc "▶ spinner and value box, clamped and typed"
    :task (run-example "spinner-value-box")}
 
+  sliders
+  {:doc "▶ slider, slider bar and their value cells"
+   :task (run-example "sliders")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

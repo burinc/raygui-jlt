@@ -15,6 +15,7 @@
    [net.b12n.raygui-jlt.labels-lines]
    [net.b12n.raygui-jlt.raygui]
    [net.b12n.raygui-jlt.raylib]
+   [net.b12n.raygui-jlt.sliders]
    [net.b12n.raygui-jlt.spinner-value-box]
    [net.b12n.raygui-jlt.text-box]
    [net.b12n.raygui-jlt.text-input-box]
