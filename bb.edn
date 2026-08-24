@@ -126,7 +126,8 @@
   {:doc "Flat list of every example with its description"
    :task
    (let [w (reg/max-name-width)
-         over (reg/check-descriptions)]
+         over (reg/check-descriptions)
+         drift (reg/doc-mismatches)]
      (doseq [row reg/examples]
        (println (str "  " (reg/pad (nth row 0) w) "  " (nth row 3))))
      (println "")
@@ -136,6 +137,15 @@
          (println "")
          (println "Descriptions over the 49-character cap:")
          (doseq [[n len] over] (println (str "  " n " (" len ")")))
+         (System/exit 1)))
+     (when (seq drift)
+       (binding [*out* *err*]
+         (println "")
+         (println "bb.edn :doc disagrees with the registry description:")
+         (doseq [[n expected actual] drift]
+           (println (str "  " n))
+           (println (str "    registry: " expected))
+           (println (str "    bb.edn:   " (if actual actual "(no task!)"))))
          (System/exit 1))))}
 
   info

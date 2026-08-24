@@ -1,5 +1,6 @@
 (ns examples-registry
-  (:require [clojure.string :as str]))
+  (:require [clojure.edn :as edn]
+            [clojure.string :as str]))
 
 ;; [display-name  joltc-alias  group  description]
 ;;
@@ -32,3 +33,21 @@
 (defn pad
   [s n]
   (str s (str/join (repeat (max 0 (- n (count s))) " "))))
+
+(defn doc-mismatches
+  "Rows whose bb.edn task :doc disagrees with the registry description.
+  Returns [name expected actual] per offender.
+
+  bb.edn's per-example :doc is a hand-copied literal of the description here,
+  because babashka reads :doc before :init runs and so cannot take a computed
+  value. The copy therefore gets verified rather than trusted. A nil `actual`
+  means the registry has a row with NO bb.edn task at all, which is one of the
+  five touchpoints failing silently."
+  []
+  (let [tasks (:tasks (edn/read-string (slurp "bb.edn")))]
+    (keep (fn [row]
+            (let [nm (nth row 0)
+                  expected (str "▶ " (nth row 3))
+                  actual (get-in tasks [(symbol nm) :doc])]
+              (when-not (= expected actual) [nm expected actual])))
+          examples)))
