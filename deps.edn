@@ -21,4 +21,5 @@
            :icon-buttons {:main-opts ["-m" "net.b12n.raygui-jlt.icon-buttons"]}
            :labels-lines {:main-opts ["-m" "net.b12n.raygui-jlt.labels-lines"]}
            :toggles {:main-opts ["-m" "net.b12n.raygui-jlt.toggles"]}
-           :text-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-box"]}}}
+           :text-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-box"]}
+           :text-input-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-input-box"]}}}

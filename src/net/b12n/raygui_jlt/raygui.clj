@@ -613,3 +613,25 @@
            h 32
            edit? false}}]
   (pos? (gui-text-box (bounds! x y w h) (ptr cell) (:size cell) (if edit? 1 0))))
+
+(defn text-input-box!
+  "GuiTextInputBox, a modal text prompt. :x :y :w :h :title :message :cell
+  :buttons :result :secret.
+
+  :cell is a :text cell for the entry, :result an :int cell receiving the index
+  of the button pressed (-1 while none is), and :secret an optional :bool cell
+  which, when supplied, adds a show/hide toggle and masks the entry.
+
+  :buttons is semicolon-separated, the same convention as the toggle group.
+  Returns the raw result."
+  [& {:keys [x y w h title message cell buttons result secret]
+      :or {x 0
+           y 0
+           w 320
+           h 160
+           title "Input"
+           message ""
+           buttons "Cancel;OK"}}]
+  (gui-text-input-box (bounds! x y w h) title message
+                      (ptr cell) (:size cell) buttons (ptr result)
+                      (if secret (ptr secret) ffi/null)))

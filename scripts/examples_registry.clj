@@ -14,7 +14,8 @@
    ["icon-buttons" "icon-buttons" "basics" "the embedded 1-bit icon pack on buttons"]
    ["labels-lines" "labels-lines" "basics" "labels, separators and a status bar"]
    ["toggles" "toggles" "basics" "toggle, toggle group and toggle slider"]
-   ["text-box" "text-box" "inputs" "an editable text box with edit mode"]])
+   ["text-box" "text-box" "inputs" "an editable text box with edit mode"]
+   ["text-input-box" "text-input-box" "inputs" "a modal text prompt with secret toggle"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

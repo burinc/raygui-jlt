@@ -179,6 +179,10 @@
   {:doc "▶ an editable text box with edit mode"
    :task (run-example "text-box")}
 
+  text-input-box
+  {:doc "▶ a modal text prompt with secret toggle"
+   :task (run-example "text-input-box")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}
