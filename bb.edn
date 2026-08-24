@@ -183,6 +183,10 @@
   {:doc "▶ a modal text prompt with secret toggle"
    :task (run-example "text-input-box")}
 
+  spinner-value-box
+  {:doc "▶ spinner and value box, clamped and typed"
+   :task (run-example "spinner-value-box")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

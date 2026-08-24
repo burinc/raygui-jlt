@@ -635,3 +635,37 @@
   (gui-text-input-box (bounds! x y w h) title message
                       (ptr cell) (:size cell) buttons (ptr result)
                       (if secret (ptr secret) ffi/null)))
+
+(defn spinner!
+  "GuiSpinner, a number with increment/decrement buttons.
+  :x :y :w :h :text :cell (an :int cell) :min :max :edit?.
+
+  Returns truthy when the control wants its edit mode toggled. raygui clamps to
+  :min/:max itself."
+  [& {:keys [x y w h text cell min max edit?]
+      :or {x 0
+           y 0
+           w 140
+           h 30
+           text ""
+           min 0
+           max 100
+           edit? false}}]
+  (pos? (gui-spinner (bounds! x y w h) text (ptr cell) min max (if edit? 1 0))))
+
+(defn value-box!
+  "GuiValueBox, a typed number field. :x :y :w :h :text :cell (an :int cell)
+  :min :max :edit?.
+
+  Like the spinner without the buttons: the value is typed rather than stepped.
+  Returns truthy when the control wants its edit mode toggled."
+  [& {:keys [x y w h text cell min max edit?]
+      :or {x 0
+           y 0
+           w 140
+           h 30
+           text ""
+           min 0
+           max 100
+           edit? false}}]
+  (pos? (gui-value-box (bounds! x y w h) text (ptr cell) min max (if edit? 1 0))))

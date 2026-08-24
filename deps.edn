@@ -22,4 +22,5 @@
            :labels-lines {:main-opts ["-m" "net.b12n.raygui-jlt.labels-lines"]}
            :toggles {:main-opts ["-m" "net.b12n.raygui-jlt.toggles"]}
            :text-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-box"]}
-           :text-input-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-input-box"]}}}
+           :text-input-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-input-box"]}
+           :spinner-value-box {:main-opts ["-m" "net.b12n.raygui-jlt.spinner-value-box"]}}}
