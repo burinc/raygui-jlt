@@ -1,0 +1,15 @@
+;; clj-kondo configuration for net.b12n.raygui-jlt.
+;;
+;; jolt.ffi/defcfn defines a var per bound C symbol. clj-kondo cannot see through
+;; the macro, so hooks/jolt_ffi.clj rewrites each call into an equivalent `defn`
+;; — see that file for why. Without it the suite reports a false positive at
+;; every binding and every call site, and the linter is unusable as a gate.
+{:hooks {:analyze-call {jolt.ffi/defcfn hooks.jolt-ffi/defcfn}}
+
+ ;; jolt.ffi's lexical-allocation macros take a [binding expr] pair and scope the
+ ;; binding over the body, which is with-open's shape exactly. Without this the
+ ;; bound symbol reads as unresolved.
+ :lint-as {jolt.ffi/with-layout   clojure.core/with-open
+           jolt.ffi/with-alloc    clojure.core/with-open
+           jolt.ffi/with-out      clojure.core/with-open
+           jolt.ffi/with-c-string clojure.core/with-open}}

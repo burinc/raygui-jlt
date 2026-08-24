@@ -241,7 +241,6 @@
   [x y w h]
   (write-rect! scratch-content x y w h))
 
-
 ;; --- cells -------------------------------------------------------------------
 ;; raygui keeps no state: the application owns every value and hands the control
 ;; a pointer to it. A cell is that pointer plus the type needed to read it back.
@@ -252,7 +251,13 @@
 ;; Sizes: :bool is a C bool (1 byte), :int and :float 4, :color a packed RGBA
 ;; uint (4), :vector2 two floats (8), :vector3 three floats (12).
 (def ^:private cell-sizes
-  {:float 4 :int 4 :bool 1 :color 4 :vector2 8 :vector3 12 :rect 16})
+  {:float 4
+   :int 4
+   :bool 1
+   :color 4
+   :vector2 8
+   :vector3 12
+   :rect 16})
 
 (defn- live-ptr
   "The cell's pointer, or throw if it has already been freed.
@@ -349,9 +354,12 @@
   [type init]
   (let [size (get cell-sizes type)]
     (when (nil? size)
-      (throw (ex-info "unknown cell type" {:type type :known (keys cell-sizes)})))
+      (throw (ex-info "unknown cell type" {:type type
+                                           :known (keys cell-sizes)})))
     (let [p (ffi/alloc size)
-          c {:ptr p :type type :freed? (atom false)}]
+          c {:ptr p
+             :type type
+             :freed? (atom false)}]
       (reset-cell! c init)
       c)))
 
@@ -373,7 +381,10 @@
   non-ASCII content close to its size."
   [size init]
   (let [p (ffi/alloc size)
-        c {:ptr p :type :text :size size :freed? (atom false)}]
+        c {:ptr p
+           :type :text
+           :size size
+           :freed? (atom false)}]
     (reset-cell! c init)
     c))
 

@@ -81,7 +81,18 @@
           (do (binding [*out* *err*]
                 (println (str "Unknown example: " (pr-str name)))
                 (println "Run `bb examples` to see the list."))
-              (System/exit 1))))))
+              (System/exit 1)))))
+
+    (def kondo-dep
+      "{:deps {clj-kondo/clj-kondo {:mvn/version \"2025.02.20\"}}}")
+
+    (defn kondo-argv
+      "Prefer the native binary when installed; fall back to the clojure CLI so a
+       bare checkout still lints."
+      []
+      (if (fs/which "clj-kondo")
+        ["clj-kondo"]
+        ["clojure" "-Sdeps" kondo-dep "-M" "-m" "clj-kondo.main"])))
 
   lib:build
   {:doc "Compile vendor/raygui.h into lib/libraygui.{dylib,so}"
@@ -140,4 +151,50 @@
 
   basic-controls
   {:doc "▶ button, label and a live click counter"
-   :task (run-example "basic-controls")}}}
+   :task (run-example "basic-controls")}
+
+  lint
+  {:doc "clj-kondo over src + scripts (report only)"
+   :task (apply shell {:continue true}
+                (concat (kondo-argv) ["--lint" "src" "scripts"]))}
+
+  lint:strict
+  {:doc "bb lint, but exit non-zero if any findings"
+   :task (let [{:keys [exit]} (apply shell {:continue true}
+                                     (concat (kondo-argv)
+                                             ["--lint" "src" "scripts"]))]
+           (when-not (zero? exit) (System/exit exit)))}
+
+  lsp:format
+  {:doc "Reformat all Clojure files (clojure-lsp)"
+   :task (shell "clojure-lsp" "format")}
+
+  lsp:format-check
+  {:doc "Check formatting — dry run"
+   :task (shell "clojure-lsp" "format" "--dry")}
+
+  lsp:clean-ns
+  {:doc "Clean + organize ns forms (clojure-lsp)"
+   :task (shell "clojure-lsp" "clean-ns")}
+
+  lsp:clean-ns-check
+  {:doc "Check ns forms — dry run"
+   :task (shell "clojure-lsp" "clean-ns" "--dry")}
+
+  hooks:install
+  {:doc "Install the pre-commit hook (lint + format + clean-ns)"
+   :task
+   (let [hook ".git/hooks/pre-commit"]
+     (spit hook
+           (str "#!/bin/sh\n"
+                "set -e\n"
+                "bb lint:strict\n"
+                "bb lsp:format-check\n"
+                "bb lsp:clean-ns-check\n"))
+     (fs/set-posix-file-permissions hook "rwxr-xr-x")
+     (println (str "Installed " hook)))}
+
+  hooks:uninstall
+  {:doc "Remove the git pre-commit hook"
+   :task (do (fs/delete-if-exists ".git/hooks/pre-commit")
+             (println "Removed .git/hooks/pre-commit"))}}}
