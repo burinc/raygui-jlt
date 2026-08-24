@@ -10,7 +10,8 @@
 ;; Descriptions are capped at 49 characters — see `check-descriptions`, which
 ;; bb.edn's `examples` task runs so the cap is enforced rather than remembered.
 (def examples
-  [["basic-controls" "basic-controls" "basics" "button, label and a live click counter"]])
+  [["basic-controls" "basic-controls" "basics" "button, label and a live click counter"]
+   ["toggles" "toggles" "basics" "toggle, toggle group and toggle slider"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

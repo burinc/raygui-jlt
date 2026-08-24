@@ -163,6 +163,10 @@
   {:doc "▶ button, label and a live click counter"
    :task (run-example "basic-controls")}
 
+  toggles
+  {:doc "▶ toggle, toggle group and toggle slider"
+   :task (run-example "toggles")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

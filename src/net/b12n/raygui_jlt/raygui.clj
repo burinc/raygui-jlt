@@ -479,3 +479,40 @@
            h 20
            text ""}}]
   (pos? (gui-check-box (bounds! x y w h) text (ptr cell))))
+
+(defn toggle!
+  "GuiToggle. :x :y :w :h :text :cell (a :bool cell). True on change."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 120
+           h 30
+           text "Toggle"}}]
+  (pos? (gui-toggle (bounds! x y w h) text (ptr cell))))
+
+(defn toggle-group!
+  "GuiToggleGroup. :x :y :w :h :text :cell.
+
+  :w and :h are the size of ONE button; raygui lays the group out from there.
+  :text is semicolon-separated (\"ONE;TWO;THREE\") and :cell is an :int cell
+  holding the selected index. True on change."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 80
+           h 30
+           text "ONE;TWO;THREE"}}]
+  (pos? (gui-toggle-group (bounds! x y w h) text (ptr cell))))
+
+(defn toggle-slider!
+  "GuiToggleSlider. :x :y :w :h :text :cell.
+
+  :text is semicolon-separated for the two ends (\"OFF;ON\") and :cell is an
+  :int cell holding the active side. True on change."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 120
+           h 30
+           text "OFF;ON"}}]
+  (pos? (gui-toggle-slider (bounds! x y w h) text (ptr cell))))

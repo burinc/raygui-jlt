@@ -12,7 +12,8 @@
   (:require
    [net.b12n.raygui-jlt.basic-controls]
    [net.b12n.raygui-jlt.raygui]
-   [net.b12n.raygui-jlt.raylib]))
+   [net.b12n.raygui-jlt.raylib]
+   [net.b12n.raygui-jlt.toggles]))
 
 (defn -main
   [& _]
