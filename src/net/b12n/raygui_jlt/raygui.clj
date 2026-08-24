@@ -593,3 +593,23 @@
   "GuiSetIconScale. Global and persistent, like every style property."
   [scale]
   (gui-set-icon-scale scale))
+
+;; --- kwarg API: inputs -------------------------------------------------------
+;; Controls in this section have an EDIT MODE the application owns. raygui does
+;; not remember whether a box is being edited: the control returns non-zero when
+;; it wants the mode toggled, and the caller flips its own :bool cell. That is
+;; the immediate-mode bargain, and it is why these wrappers return the raw
+;; result rather than a boolean.
+
+(defn text-box!
+  "GuiTextBox. :x :y :w :h :cell (a :text cell) :edit? (a bool).
+
+  Returns truthy when the box wants its edit mode toggled. raygui edits the
+  cell's buffer IN PLACE, so the cell is both the input and the output."
+  [& {:keys [x y w h cell edit?]
+      :or {x 0
+           y 0
+           w 200
+           h 32
+           edit? false}}]
+  (pos? (gui-text-box (bounds! x y w h) (ptr cell) (:size cell) (if edit? 1 0))))

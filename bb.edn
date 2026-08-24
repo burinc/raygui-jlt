@@ -175,6 +175,10 @@
   {:doc "▶ toggle, toggle group and toggle slider"
    :task (run-example "toggles")}
 
+  text-box
+  {:doc "▶ an editable text box with edit mode"
+   :task (run-example "text-box")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

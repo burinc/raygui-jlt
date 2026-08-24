@@ -20,4 +20,5 @@
            :basic-controls {:main-opts ["-m" "net.b12n.raygui-jlt.basic-controls"]}
            :icon-buttons {:main-opts ["-m" "net.b12n.raygui-jlt.icon-buttons"]}
            :labels-lines {:main-opts ["-m" "net.b12n.raygui-jlt.labels-lines"]}
-           :toggles {:main-opts ["-m" "net.b12n.raygui-jlt.toggles"]}}}
+           :toggles {:main-opts ["-m" "net.b12n.raygui-jlt.toggles"]}
+           :text-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-box"]}}}
