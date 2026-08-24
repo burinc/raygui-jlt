@@ -516,3 +516,46 @@
            h 30
            text "OFF;ON"}}]
   (pos? (gui-toggle-slider (bounds! x y w h) text (ptr cell))))
+
+(defn line!
+  "GuiLine, a horizontal separator. :x :y :w :h :text.
+
+  An empty :text draws a plain rule; a non-empty one splits the rule around a
+  caption. Named line! to match rl/line!, which is unrelated: this one is a
+  raygui control and takes bounds, not endpoints."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 200
+           h 12
+           text ""}}]
+  (gui-line (bounds! x y w h) text))
+
+(defn status-bar!
+  "GuiStatusBar. :x :y :w :h :text."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 200
+           h 24
+           text ""}}]
+  (gui-status-bar (bounds! x y w h) text))
+
+(defn dummy-rec!
+  "GuiDummyRec, a placeholder box. :x :y :w :h :text."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 120
+           h 30
+           text "placeholder"}}]
+  (gui-dummy-rec (bounds! x y w h) text))
+
+(defn set-text-alignment!
+  "Set TEXT_ALIGNMENT for one control (or DEFAULT for all).
+
+  Style properties are global and persist across frames, so a control that
+  changes alignment for itself must set it back afterwards or every later
+  control inherits it."
+  [control alignment]
+  (gui-set-style control TEXT-ALIGNMENT alignment))

@@ -163,6 +163,10 @@
   {:doc "▶ button, label and a live click counter"
    :task (run-example "basic-controls")}
 
+  labels-lines
+  {:doc "▶ labels, separators and a status bar"
+   :task (run-example "labels-lines")}
+
   toggles
   {:doc "▶ toggle, toggle group and toggle slider"
    :task (run-example "toggles")}

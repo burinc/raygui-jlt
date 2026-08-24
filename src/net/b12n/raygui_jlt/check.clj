@@ -11,6 +11,7 @@
   RAYGUI_APP_AUTO_QUIT_MS + RAYGUI_APP_SHOT smoke."
   (:require
    [net.b12n.raygui-jlt.basic-controls]
+   [net.b12n.raygui-jlt.labels-lines]
    [net.b12n.raygui-jlt.raygui]
    [net.b12n.raygui-jlt.raylib]
    [net.b12n.raygui-jlt.toggles]))
