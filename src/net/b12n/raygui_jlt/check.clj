@@ -11,6 +11,7 @@
   RAYGUI_APP_AUTO_QUIT_MS + RAYGUI_APP_SHOT smoke."
   (:require
    [net.b12n.raygui-jlt.basic-controls]
+   [net.b12n.raygui-jlt.dropdown-box]
    [net.b12n.raygui-jlt.icon-buttons]
    [net.b12n.raygui-jlt.labels-lines]
    [net.b12n.raygui-jlt.progress-bar]

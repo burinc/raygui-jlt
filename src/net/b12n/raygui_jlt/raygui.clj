@@ -735,3 +735,27 @@
            max 1.0}}]
   (pos? (gui-progress-bar (bounds! x y w h) left right (ptr cell)
                           (double min) (double max))))
+
+;; --- kwarg API: collections --------------------------------------------------
+;; Every control here takes its options as ONE semicolon-separated string and
+;; answers with an index in an :int cell. raygui passes lists that way
+;; throughout, which keeps arrays off the FFI boundary entirely — the two Ex
+;; variants that do take char** are the exception, not the rule.
+
+(defn dropdown-box!
+  "GuiDropdownBox. :x :y :w :h :text :cell (an :int cell) :edit?.
+
+  Returns truthy when the control wants its edit mode toggled — which for a
+  dropdown means opening or closing the list.
+
+  A DROPDOWN MUST BE DRAWN LAST, or drawn over. While open it paints its list
+  outside its own bounds, and raygui has no z-order: whatever is drawn after it
+  paints on top of the open list."
+  [& {:keys [x y w h text cell edit?]
+      :or {x 0
+           y 0
+           w 160
+           h 30
+           text "ONE;TWO;THREE"
+           edit? false}}]
+  (pos? (gui-dropdown-box (bounds! x y w h) text (ptr cell) (if edit? 1 0))))

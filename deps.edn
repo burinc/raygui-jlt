@@ -25,4 +25,5 @@
            :text-input-box {:main-opts ["-m" "net.b12n.raygui-jlt.text-input-box"]}
            :spinner-value-box {:main-opts ["-m" "net.b12n.raygui-jlt.spinner-value-box"]}
            :sliders {:main-opts ["-m" "net.b12n.raygui-jlt.sliders"]}
-           :progress-bar {:main-opts ["-m" "net.b12n.raygui-jlt.progress-bar"]}}}
+           :progress-bar {:main-opts ["-m" "net.b12n.raygui-jlt.progress-bar"]}
+           :dropdown-box {:main-opts ["-m" "net.b12n.raygui-jlt.dropdown-box"]}}}

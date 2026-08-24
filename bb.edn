@@ -195,6 +195,10 @@
   {:doc "▶ a progress bar driven by a timer"
    :task (run-example "progress-bar")}
 
+  dropdown-box
+  {:doc "▶ a dropdown that owns its edit mode"
+   :task (run-example "dropdown-box")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}
