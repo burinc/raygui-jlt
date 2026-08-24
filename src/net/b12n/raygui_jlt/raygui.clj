@@ -183,3 +183,202 @@
 (def ^:const TEXT-ALIGN-LEFT   0)
 (def ^:const TEXT-ALIGN-CENTER 1)
 (def ^:const TEXT-ALIGN-RIGHT  2)
+
+;; --- the scratch Rectangle ---------------------------------------------------
+;; Every control takes `Rectangle bounds` by value. jolt's [:by-value ...] wants
+;; a pointer to caller-owned storage and COPIES the struct at call time, so one
+;; module-level buffer rewritten per call is sufficient and correct.
+;;
+;; Verified rather than assumed: four controls drawn at four different positions
+;; through this single buffer render identically to four separate allocations.
+;;
+;; The consequence is the point. Without it every control call would allocate 16
+;; bytes per frame — 4 controls at 60fps is 240 allocations a second, per
+;; example, all needing a matching free. With it, NO example allocates or frees
+;; inside a frame, and the only lifetime an example manages is its cells.
+;;
+;; Not thread-safe, and does not need to be: raylib's frame loop is single
+;; threaded and every control call returns before the next begins.
+(def ^:private rect-layout
+  (ffi/layout [:struct [[:x :float] [:y :float] [:width :float] [:height :float]]]))
+
+(def ^:private scratch-rect (ffi/alloc (ffi/layout-size rect-layout)))
+
+;; A SECOND buffer, for the one control that takes two by-value Rectangles in a
+;; single call: GuiScrollPanel(bounds, text, content, *scroll, *view).
+;;
+;; Clojure evaluates arguments left to right, so writing both rects through one
+;; buffer means the second write clobbers the first and BOTH pointers hand raygui
+;; the same rectangle. Measured: a scroll panel declared at 200x90 rendered at its
+;; 600x400 content size, covering the window, with no error. The panel still
+;; drew, scrollbars and all, which is what makes it dangerous.
+;;
+;; Two buffers is the whole fix. There is no third case: no other raygui function
+;; takes more than one by-value struct.
+(def ^:private scratch-content (ffi/alloc (ffi/layout-size rect-layout)))
+
+(defn- write-rect!
+  [p x y w h]
+  (ffi/write-field p rect-layout :x (double x))
+  (ffi/write-field p rect-layout :y (double y))
+  (ffi/write-field p rect-layout :width (double w))
+  (ffi/write-field p rect-layout :height (double h))
+  p)
+
+(defn bounds!
+  "Rewrite the scratch Rectangle and return it. Internal: the kwarg wrappers
+  below call this, and examples pass :x :y :w :h instead."
+  [x y w h]
+  (write-rect! scratch-rect x y w h))
+
+(defn content!
+  "Rewrite the SECOND scratch Rectangle and return it.
+
+  Used only by scroll-panel!, for the content rect that accompanies bounds in
+  the same call. Never use this where bounds! would do: the point of two buffers
+  is that one call can hold both alive, not that there are two interchangeable
+  scratch slots."
+  [x y w h]
+  (write-rect! scratch-content x y w h))
+
+;; --- cells -------------------------------------------------------------------
+;; raygui keeps no state: the application owns every value and hands the control
+;; a pointer to it. A cell is that pointer plus the type needed to read it back.
+;;
+;; Allocate cells ONCE, outside the frame loop, and free them after it. A cell
+;; allocated inside the loop leaks 60 times a second.
+;;
+;; Sizes: :bool is a C bool (1 byte), :int and :float 4, :color a packed RGBA
+;; uint (4), :vector2 two floats (8), :vector3 three floats (12).
+(def ^:private cell-sizes
+  {:float 4 :int 4 :bool 1 :color 4 :vector2 8 :vector3 12 :rect 16})
+
+(defn ptr
+  "The raw pointer inside a cell, for passing to a raw gui-* binding."
+  [c]
+  (:ptr c))
+
+(defn value
+  "Read a cell, typed. :vector2 returns [x y]; :vector3 returns [x y z];
+  :bool returns true/false; the rest return a number."
+  [c]
+  (let [p (:ptr c)]
+    (case (:type c)
+      :float   (ffi/read p :float 0)
+      :int     (ffi/read p :int 0)
+      :color   (ffi/read p :uint 0)
+      :bool    (not (zero? (bit-and (ffi/read p :uint8 0) 0xff)))
+      :text    (ffi/ptr->string p)
+      :vector2 [(ffi/read p :float 0) (ffi/read p :float 4)]
+      :vector3 [(ffi/read p :float 0) (ffi/read p :float 4) (ffi/read p :float 8)]
+      :rect    [(ffi/read p :float 0) (ffi/read p :float 4)
+                (ffi/read p :float 8) (ffi/read p :float 12)])))
+
+;; reset-cell! is defined BEFORE cell, which calls it. Since jolt 0.4.0 a symbol
+;; must be defined before its first use in the file, in a fn body as much as at
+;; top level, so the reverse order is a compile error rather than a style choice.
+(defn reset-cell!
+  "Write `v` into a cell. Returns v."
+  [c v]
+  (let [p (:ptr c)]
+    (case (:type c)
+      :float   (ffi/write p :float 0 (double v))
+      :int     (ffi/write p :int 0 (int v))
+      :color   (ffi/write p :uint 0 v)
+      :bool    (ffi/write p :uint8 0 (if v 1 0))
+      :text    (let [size (:size c)
+                     bs (.getBytes (str v) "UTF-8")
+                     n (min (alength bs) (dec size))]
+                 ;; Zero the whole buffer first: raygui edits it in place, so a
+                 ;; shorter new value must not leave the old tail behind the NUL
+                 ;; for the next edit to resurrect.
+                 (dotimes [i size] (ffi/write p :uint8 i 0))
+                 (dotimes [i n] (ffi/write p :uint8 i (bit-and (aget bs i) 0xff))))
+      :vector2 (do (ffi/write p :float 0 (double (nth v 0)))
+                   (ffi/write p :float 4 (double (nth v 1))))
+      :vector3 (do (ffi/write p :float 0 (double (nth v 0)))
+                   (ffi/write p :float 4 (double (nth v 1)))
+                   (ffi/write p :float 8 (double (nth v 2))))
+      :rect    (do (ffi/write p :float 0 (double (nth v 0)))
+                   (ffi/write p :float 4 (double (nth v 1)))
+                   (ffi/write p :float 8 (double (nth v 2)))
+                   (ffi/write p :float 12 (double (nth v 3)))))
+    v))
+
+(defn free-cell!
+  "Release a cell. Call once, after the frame loop."
+  [c]
+  (ffi/free (:ptr c))
+  nil)
+
+(defn cell
+  "Allocate a native cell of `type` holding `init`.
+
+  type is one of :float :int :bool :color :vector2 :vector3. For :vector2 the
+  init is [x y]; for :vector3 [x y z]; for :bool a truthy value; for :color a
+  packed rgba uint (see rl/rgba)."
+  [type init]
+  (let [size (get cell-sizes type)]
+    (when (nil? size)
+      (throw (ex-info "unknown cell type" {:type type :known (keys cell-sizes)})))
+    (let [p (ffi/alloc size)
+          c {:ptr p :type type}]
+      (reset-cell! c init)
+      c)))
+
+(defn text-cell
+  "Allocate a mutable char buffer of `size` bytes holding `init`.
+
+  Separate from `cell` because a text buffer is the one cell whose size is not
+  implied by its type: GuiTextBox and GuiTextInputBox edit the buffer IN PLACE
+  and need to know how much room they have. `size` includes the NUL terminator,
+  so a 64-byte cell holds 63 characters.
+
+  Read it with `value`, which returns a Clojure string."
+  [size init]
+  (let [p (ffi/alloc size)
+        c {:ptr p :type :text :size size}]
+    (reset-cell! c init)
+    c))
+
+;; --- style helpers -----------------------------------------------------------
+(defn style-color
+  "The style's colour for `control`/`property`, as a raylib packed Color.
+
+  raygui stores style colours as 0xRRGGBBAA; raylib's Color packs little-endian
+  as 0xAABBGGRR. Passing a GuiGetStyle value straight to a raylib colour
+  argument swaps red and blue and renders a plausible WRONG colour, with no
+  error to notice. Measured: cyber's background is 0x81C0D0FF, RGB(129,192,208),
+  a light blue; fed raw to ClearBackground it renders salmon pink.
+
+  Always come through here. See AGENTS.md \"Two traps\"."
+  [control property]
+  (rl/get-color (gui-get-style control property)))
+
+(defn load-style!
+  "Load a .rgs style file. Returns the byte count read.
+
+  Reads the bytes Clojure-side and hands raygui a buffer rather than calling
+  GuiLoadStyle(path), which resolves its path against the process working
+  directory: an example that works under `bb` from the repo root would break run
+  from anywhere else. The .rgs format embeds its own font, so nothing else is
+  needed.
+
+  Verified against style_cyber.rgs: 3884 bytes, palette and embedded font both
+  applied on the next frame."
+  [path]
+  (let [bs (java.nio.file.Files/readAllBytes (.toPath (java.io.File. path)))
+        n (alength bs)
+        p (ffi/alloc n)]
+    (try
+      (dotimes [i n]
+        (ffi/write p :uint8 i (bit-and (aget bs i) 0xff)))
+      (gui-load-style-from-memory p n)
+      n
+      (finally (ffi/free p)))))
+
+(defn load-style-default!
+  "Reset to raygui's built-in style."
+  []
+  (gui-load-style-default)
+  nil)
