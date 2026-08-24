@@ -1,0 +1,40 @@
+Third-party attribution
+=======================
+
+This project is released under the zlib License; see LICENSE.
+
+raygui
+------
+  Copyright (c) 2014-2026 Ramon Santamaria (@raysan5)
+  https://github.com/raysan5/raygui
+  Licensed under the zlib/libpng license (the same license as this project).
+
+  This project DOES vendor and redistribute raygui. vendor/raygui.h is an
+  unmodified copy of upstream's single-file header at revision
+  5.0-9-gfbf5d95, and vendor/styles/*.rgs are unmodified copies of six of
+  upstream's style themes.
+
+  raygui is a header-only library, so there is no shared library to install
+  and no package-manager formula for it. vendor/raygui_impl.c is the one
+  compilation unit that instantiates the implementation; `bb lib:build`
+  compiles it into lib/libraygui.dylib. Vendoring the header is what pins
+  the version and makes that build reproducible.
+
+  Several examples in src/net/b12n/raygui_jlt/ are Clojure ports of raygui's
+  own example programs: scroll-panel, floating-window, style-selector and
+  custom-input-box. Those are likewise zlib/libpng licensed, and this project
+  is released under the same license so that the original terms carry through.
+
+raylib
+------
+  Copyright (c) 2013-2026 Ramon Santamaria (@raysan5)
+  https://github.com/raysan5/raylib
+  Licensed under the zlib/libpng license.
+
+  This project does not vendor or redistribute raylib itself: it loads the
+  system-installed libraylib shared library at runtime over its C ABI, and
+  links lib/libraygui.dylib against that same library.
+
+  src/net/b12n/raygui_jlt/raylib.clj is a trimmed derivative of the raylib
+  bindings in the sibling project b12n-raylib-jlt, carrying only the window,
+  frame, input, colour and text surface these examples need.
