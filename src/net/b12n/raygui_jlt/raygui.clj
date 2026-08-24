@@ -241,6 +241,7 @@
   [x y w h]
   (write-rect! scratch-content x y w h))
 
+
 ;; --- cells -------------------------------------------------------------------
 ;; raygui keeps no state: the application owns every value and hands the control
 ;; a pointer to it. A cell is that pointer plus the type needed to read it back.
@@ -253,16 +254,37 @@
 (def ^:private cell-sizes
   {:float 4 :int 4 :bool 1 :color 4 :vector2 8 :vector3 12 :rect 16})
 
+(defn- live-ptr
+  "The cell's pointer, or throw if it has already been freed.
+
+  This guard exists because the two failure modes are both terrible and one is
+  undebuggable. Measured on this jolt build:
+
+    * reading a freed cell returns GARBAGE, silently — a freed :int cell that
+      held 5 read back as 7222, with no error;
+    * freeing a cell twice ABORTS THE PROCESS: exit 133, no output, no stack,
+      and NOT interceptable by try/catch, because it happens in the allocator
+      below the Clojure layer.
+
+  Each example frees its cells by hand at teardown, so across the suite there
+  are dozens of hand-written free-cell! calls. Turning a silent process abort
+  into an ordinary catchable exception is worth six lines."
+  [c]
+  (when @(:freed? c)
+    (throw (ex-info "cell used after free-cell!" {:type (:type c)})))
+  (:ptr c))
+
 (defn ptr
   "The raw pointer inside a cell, for passing to a raw gui-* binding."
   [c]
-  (:ptr c))
+  (live-ptr c))
 
 (defn value
-  "Read a cell, typed. :vector2 returns [x y]; :vector3 returns [x y z];
-  :bool returns true/false; the rest return a number."
+  "Read a cell, typed. :bool returns true/false; :text returns a Clojure string;
+  :rect returns [x y w h]; :vector2 returns [x y]; :vector3 returns [x y z];
+  :float, :int and :color return a number."
   [c]
-  (let [p (:ptr c)]
+  (let [p (live-ptr c)]
     (case (:type c)
       :float   (ffi/read p :float 0)
       :int     (ffi/read p :int 0)
@@ -280,7 +302,7 @@
 (defn reset-cell!
   "Write `v` into a cell. Returns v."
   [c v]
-  (let [p (:ptr c)]
+  (let [p (live-ptr c)]
     (case (:type c)
       :float   (ffi/write p :float 0 (double v))
       :int     (ffi/write p :int 0 (int v))
@@ -306,23 +328,30 @@
     v))
 
 (defn free-cell!
-  "Release a cell. Call once, after the frame loop."
+  "Release a cell. Call once, after the frame loop.
+
+  Idempotent on purpose: a second call is a no-op rather than a process abort.
+  See live-ptr for the measurement."
   [c]
-  (ffi/free (:ptr c))
+  (when (compare-and-set! (:freed? c) false true)
+    (ffi/free (:ptr c)))
   nil)
 
 (defn cell
   "Allocate a native cell of `type` holding `init`.
 
-  type is one of :float :int :bool :color :vector2 :vector3. For :vector2 the
-  init is [x y]; for :vector3 [x y z]; for :bool a truthy value; for :color a
-  packed rgba uint (see rl/rgba)."
+  type is one of :float :int :bool :color :vector2 :vector3 :rect. For :vector2
+  the init is [x y]; for :vector3 [x y z]; for :rect [x y w h]; for :bool a
+  truthy value; for :color a packed rgba uint (see rl/rgba).
+
+  :text is deliberately NOT reachable here — a text buffer needs an explicit
+  size, so it goes through text-cell."
   [type init]
   (let [size (get cell-sizes type)]
     (when (nil? size)
       (throw (ex-info "unknown cell type" {:type type :known (keys cell-sizes)})))
     (let [p (ffi/alloc size)
-          c {:ptr p :type type}]
+          c {:ptr p :type type :freed? (atom false)}]
       (reset-cell! c init)
       c)))
 
@@ -334,10 +363,17 @@
   and need to know how much room they have. `size` includes the NUL terminator,
   so a 64-byte cell holds 63 characters.
 
-  Read it with `value`, which returns a Clojure string."
+  Read it with `value`, which returns a Clojure string.
+
+  Truncation is by UTF-8 BYTE, not by codepoint, so a multi-byte character
+  straddling the limit is cut mid-sequence and reads back with a replacement
+  character (measured: a size-4 cell given \"ee\" with both e-acute reads back as
+  one e-acute plus U+FFFD). Harmless for the ASCII these controls carry in
+  practice — numbers, filenames, short labels — but do not seed a text-cell with
+  non-ASCII content close to its size."
   [size init]
   (let [p (ffi/alloc size)
-        c {:ptr p :type :text :size size}]
+        c {:ptr p :type :text :size size :freed? (atom false)}]
     (reset-cell! c init)
     c))
 
