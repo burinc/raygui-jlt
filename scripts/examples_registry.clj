@@ -20,7 +20,8 @@
    ["sliders" "sliders" "inputs" "slider, slider bar and their value cells"]
    ["progress-bar" "progress-bar" "inputs" "a progress bar driven by a timer"]
    ["dropdown-box" "dropdown-box" "collections" "a dropdown that owns its edit mode"]
-   ["combo-box" "combo-box" "collections" "a combo box cycling through options"]])
+   ["combo-box" "combo-box" "collections" "a combo box cycling through options"]
+   ["list-view" "list-view" "collections" "a scrollable list with an active row"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

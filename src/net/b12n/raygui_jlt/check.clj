@@ -15,6 +15,7 @@
    [net.b12n.raygui-jlt.dropdown-box]
    [net.b12n.raygui-jlt.icon-buttons]
    [net.b12n.raygui-jlt.labels-lines]
+   [net.b12n.raygui-jlt.list-view]
    [net.b12n.raygui-jlt.progress-bar]
    [net.b12n.raygui-jlt.raygui]
    [net.b12n.raygui-jlt.raylib]

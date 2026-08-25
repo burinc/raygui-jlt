@@ -203,6 +203,10 @@
   {:doc "▶ a combo box cycling through options"
    :task (run-example "combo-box")}
 
+  list-view
+  {:doc "▶ a scrollable list with an active row"
+   :task (run-example "list-view")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

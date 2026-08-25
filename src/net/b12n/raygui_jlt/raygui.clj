@@ -773,3 +773,16 @@
            h 30
            text "ONE;TWO;THREE"}}]
   (pos? (gui-combo-box (bounds! x y w h) text (ptr cell))))
+
+(defn list-view!
+  "GuiListView. :x :y :w :h :text :scroll (an :int cell) :cell (an :int cell).
+
+  :scroll holds the index of the first visible row and :cell the selected row,
+  or -1 for none. Both are cells because raygui writes to both. True on change."
+  [& {:keys [x y w h text scroll cell]
+      :or {x 0
+           y 0
+           w 200
+           h 140
+           text ""}}]
+  (pos? (gui-list-view (bounds! x y w h) text (ptr scroll) (ptr cell))))
