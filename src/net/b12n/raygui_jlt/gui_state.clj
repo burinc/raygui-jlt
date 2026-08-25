@@ -1,9 +1,9 @@
 (ns net.b12n.raygui-jlt.gui-state
   "raygui [styling] example — the global state API, and the discipline it needs.
 
-  GuiSetState, GuiSetAlpha, GuiLock and GuiDisable are all global and all
-  persistent: they apply to every control drawn afterwards, for as long as the
-  program runs, until something sets them back. There is no scope and no stack.
+  GuiSetState, GuiSetAlpha and GuiLock are all global and all persistent:
+  they apply to every control drawn afterwards, for as long as the program
+  runs, until something sets them back. There is no scope and no stack.
 
   That makes forgetting to restore one the characteristic raygui bug, and a
   quiet one: the affected controls still draw, just wrong, and often far from

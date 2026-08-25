@@ -259,7 +259,7 @@
    :task (run-example "style-selector")}
 
   gui-state
-  {:doc "▶ enable, disable, lock and alpha states"
+  {:doc "▶ forced states, alpha and lock"
    :task (run-example "gui-state")}
 
   lint

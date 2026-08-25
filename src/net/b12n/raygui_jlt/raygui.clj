@@ -953,7 +953,13 @@
 
 (defn color-picker!
   "GuiColorPicker, a saturation/value square with a hue bar. :x :y :w :h :text
-  :cell (a :color cell). True on change."
+  :cell (a :color cell).
+
+  The return value is NOT a reliable change signal: GuiColorPicker (see
+  vendor/raygui.h) draws the square then the hue bar, and the hue bar's
+  result unconditionally overwrites the square's rather than OR-ing with it.
+  A drag inside the square alone returns RESULT_NONE even though the cell's
+  colour changed. Read the cell instead of the return value."
   [& {:keys [x y w h text cell]
       :or {x 0
            y 0

@@ -33,7 +33,7 @@
    ["color-picker" "color-picker" "color" "an RGB picker with an alpha bar"]
    ["color-picker-hsv" "color-picker-hsv" "color" "the HSV picker and panel"]
    ["style-selector" "style-selector" "styling" "cycle six vendored .rgs style themes"]
-   ["gui-state" "gui-state" "styling" "enable, disable, lock and alpha states"]])
+   ["gui-state" "gui-state" "styling" "forced states, alpha and lock"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 
