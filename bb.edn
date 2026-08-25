@@ -3,6 +3,13 @@
 ;;   bb lib:build       compile vendor/raygui.h -> lib/libraygui.dylib
 ;;   bb lib:check       is raylib installed? is libraygui built?
 ;;
+;; Quality: bb lint | lint:strict, bb lsp:format | lsp:format-check,
+;; bb lsp:clean-ns | lsp:clean-ns-check, bb lsp:diagnostics, bb lsp:check
+;; (all three, dry run), bb lsp:fix (format + clean-ns, mutating),
+;; bb check:positional-args | :strict (find fns with 3+ positional args).
+;; Git hooks: bb hooks:install (fast) | hooks:install:full (+ bb check) |
+;; hooks:uninstall.
+;;
 ;; NOTE: task bodies are read by babashka's EDN reader, which does NOT support
 ;; #"regex", @deref, or #(...) reader macros — use (re-pattern "..."),
 ;; (deref ...) and (fn [x] ...). Run `bb tasks` after editing to confirm the
@@ -243,6 +250,16 @@
                                              ["--lint" "src" "scripts"]))]
            (when-not (zero? exit) (System/exit exit)))}
 
+  check:positional-args
+  {:doc "Find fns with 3+ positional args (prefer a kwargs map; report only)"
+   :task (let [{:keys [exit]} (shell {:continue true} "bb" "scripts/check_positional_args.clj")]
+           (System/exit exit))}
+
+  check:positional-args:strict
+  {:doc "bb check:positional-args, but exit non-zero if any found"
+   :task (let [{:keys [exit]} (shell {:continue true} "bb" "scripts/check_positional_args.clj" "--strict")]
+           (System/exit exit))}
+
   lsp:format
   {:doc "Reformat all Clojure files (clojure-lsp)"
    :task (shell "clojure-lsp" "format")}
@@ -259,16 +276,59 @@
   {:doc "Check ns forms — dry run"
    :task (shell "clojure-lsp" "clean-ns" "--dry")}
 
+  lsp:diagnostics
+  {:doc "clojure-lsp diagnostics"
+   :task (let [{:keys [exit]} (shell {:continue true} "clojure-lsp" "diagnostics")]
+           (if (zero? exit)
+             (println "OK no diagnostics")
+             (println "!! diagnostics found (see above)")))}
+
+  lsp:check
+  {:doc "All LSP checks (format + clean-ns + diagnostics) — dry run"
+   :task (do (println "-> LSP checks (dry run)")
+             (println "-> format --dry")
+             (shell {:continue true} "clojure-lsp" "format" "--dry")
+             (println "-> clean-ns --dry")
+             (shell {:continue true} "clojure-lsp" "clean-ns" "--dry")
+             (println "-> diagnostics")
+             (shell {:continue true} "clojure-lsp" "diagnostics")
+             (println "OK LSP checks done (see above for any issues)"))}
+
+  lsp:fix
+  {:doc "Auto-fix: format + clean-ns (mutating)"
+   :task (do (println "-> LSP auto-fix")
+             (println "-> format")
+             (shell {:continue true} "clojure-lsp" "format")
+             (println "-> clean-ns")
+             (shell {:continue true} "clojure-lsp" "clean-ns")
+             (println "OK auto-fixes applied — run bb lsp:diagnostics + bb check to confirm"))}
+
   hooks:install
-  {:doc "Install the pre-commit hook (lint + format + clean-ns)"
+  {:doc "Install FAST pre-commit hook (lint + format + clean-ns, ~2s)"
    :task
    (let [hook ".git/hooks/pre-commit"]
      (spit hook
            (str "#!/bin/sh\n"
                 "set -e\n"
+                "# raygui-jlt pre-commit (FAST). Full (+ bb check): bb hooks:install:full\n"
                 "bb lint:strict\n"
                 "bb lsp:format-check\n"
                 "bb lsp:clean-ns-check\n"))
+     (fs/set-posix-file-permissions hook "rwxr-xr-x")
+     (println (str "Installed " hook)))}
+
+  hooks:install:full
+  {:doc "Install FULL pre-commit hook (+ bb check, slower)"
+   :task
+   (let [hook ".git/hooks/pre-commit"]
+     (spit hook
+           (str "#!/bin/sh\n"
+                "set -e\n"
+                "# raygui-jlt pre-commit (FULL). Fast: bb hooks:install\n"
+                "bb lint:strict\n"
+                "bb lsp:format-check\n"
+                "bb lsp:clean-ns-check\n"
+                "bb check\n"))
      (fs/set-posix-file-permissions hook "rwxr-xr-x")
      (println (str "Installed " hook)))}
 
