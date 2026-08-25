@@ -27,7 +27,8 @@
    ["panel-group-box" "panel-group-box" "containers" "panels and group boxes as containers"]
    ["scroll-panel" "scroll-panel" "containers" "a scroll panel over oversized content"]
    ["window-box" "window-box" "containers" "a window box you can close and reopen"]
-   ["floating-window" "floating-window" "containers" "two draggable floating windows"]])
+   ["floating-window" "floating-window" "containers" "two draggable floating windows"]
+   ["message-box" "message-box" "dialogs" "a modal message box with two buttons"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

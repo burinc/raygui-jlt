@@ -238,6 +238,10 @@
   {:doc "▶ two draggable floating windows"
    :task (run-example "floating-window")}
 
+  message-box
+  {:doc "▶ a modal message box with two buttons"
+   :task (run-example "message-box")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

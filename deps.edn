@@ -34,4 +34,5 @@
            :panel-group-box {:main-opts ["-m" "net.b12n.raygui-jlt.panel-group-box"]}
            :scroll-panel {:main-opts ["-m" "net.b12n.raygui-jlt.scroll-panel"]}
            :window-box {:main-opts ["-m" "net.b12n.raygui-jlt.window-box"]}
-           :floating-window {:main-opts ["-m" "net.b12n.raygui-jlt.floating-window"]}}}
+           :floating-window {:main-opts ["-m" "net.b12n.raygui-jlt.floating-window"]}
+           :message-box {:main-opts ["-m" "net.b12n.raygui-jlt.message-box"]}}}

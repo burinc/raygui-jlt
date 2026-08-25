@@ -917,3 +917,29 @@
            h 160
            title "Window"}}]
   (pos? (gui-window-box (bounds! x y w h) title)))
+
+;; --- kwarg API: dialogs ------------------------------------------------------
+;; "Modal" here is a description of how it looks, not of what it does. raygui
+;; does not block input to what is behind a dialog: the caller stops drawing the
+;; rest, or accepts that both respond. Nothing in raygui enforces modality.
+
+(defn message-box!
+  "GuiMessageBox. :x :y :w :h :title :message :buttons :result.
+
+  :buttons is semicolon-separated and :result an :int cell receiving which
+  button was pressed. Returns the raw result.
+
+  THE :result ENCODING IS 1-BASED, AND 0 IS NOT A BUTTON. From
+  vendor/raygui.h: the window's close (X) icon writes 0 and the i-th button
+  writes i+1, so with :buttons \"Cancel;Discard\" Cancel is 1 and Discard is 2.
+  The control never writes a negative value; initialise the cell to -1 to mean
+  \"nothing pressed yet\". GuiTextInputBox uses the identical encoding."
+  [& {:keys [x y w h title message buttons result]
+      :or {x 0
+           y 0
+           w 280
+           h 130
+           title "Message"
+           message ""
+           buttons "OK"}}]
+  (gui-message-box (bounds! x y w h) title message buttons (ptr result)))
