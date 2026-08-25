@@ -207,6 +207,10 @@
   {:doc "▶ a scrollable list with an active row"
    :task (run-example "list-view")}
 
+  list-view-ex
+  {:doc "▶ a list view reporting focus and scroll"
+   :task (run-example "list-view-ex")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

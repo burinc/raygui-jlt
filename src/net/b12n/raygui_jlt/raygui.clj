@@ -786,3 +786,26 @@
            h 140
            text ""}}]
   (pos? (gui-list-view (bounds! x y w h) text (ptr scroll) (ptr cell))))
+
+(defn list-view-ex!
+  "GuiListViewEx. :x :y :w :h :items (a seq of strings) :scroll :cell :focus.
+
+  The Ex variant takes a real char** array rather than a semicolon-separated
+  string, and reports which row the pointer is over through :focus in addition
+  to the selection in :cell.
+
+  The array is built, used and freed inside one with-c-string-array: its member
+  pointers must not outlive the body, which is why the control call happens
+  inside rather than the array being returned. True on change."
+  [& {:keys [x y w h items scroll cell focus]
+      :or {x 0
+           y 0
+           w 200
+           h 140
+           items []}}]
+  (let [items (vec items)
+        n (count items)]
+    (ffi/with-c-string-array [arr n] items
+      (pos? (gui-list-view-ex (bounds! x y w h) arr n
+                              (ptr scroll) (ptr cell) (ptr focus))))))
+

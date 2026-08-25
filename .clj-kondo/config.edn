@@ -9,7 +9,8 @@
  ;; jolt.ffi's lexical-allocation macros take a [binding expr] pair and scope the
  ;; binding over the body, which is with-open's shape exactly. Without this the
  ;; bound symbol reads as unresolved.
- :lint-as {jolt.ffi/with-layout   clojure.core/with-open
-           jolt.ffi/with-alloc    clojure.core/with-open
-           jolt.ffi/with-out      clojure.core/with-open
-           jolt.ffi/with-c-string clojure.core/with-open}}
+ :lint-as {jolt.ffi/with-layout          clojure.core/with-open
+           jolt.ffi/with-alloc         clojure.core/with-open
+           jolt.ffi/with-out           clojure.core/with-open
+           jolt.ffi/with-c-string      clojure.core/with-open
+           jolt.ffi/with-c-string-array clojure.core/with-open}}
