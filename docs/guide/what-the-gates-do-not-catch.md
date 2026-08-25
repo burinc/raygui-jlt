@@ -39,7 +39,7 @@ raygui stores style colours as `0xRRGGBBAA`. raylib's `Color` packs little-endia
 Measured on the `cyber` style's background:
 
 ```
-GuiGetStyle(DEFAULT, BACKGROUND_COLOR)  ->  0x81C0D0FF   (R=129 G=192 B=208 A=255, light blue)
+GuiGetStyle(DEFAULT, LINE_COLOR)  ->  0x81C0D0FF   (R=129 G=192 B=208 A=255, light blue)
 fed directly to ClearBackground         ->  renders salmon pink
 via GetColor()                          ->  renders light blue, correct
 ```
