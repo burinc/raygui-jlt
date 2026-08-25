@@ -29,4 +29,5 @@
            :dropdown-box {:main-opts ["-m" "net.b12n.raygui-jlt.dropdown-box"]}
            :combo-box {:main-opts ["-m" "net.b12n.raygui-jlt.combo-box"]}
            :list-view {:main-opts ["-m" "net.b12n.raygui-jlt.list-view"]}
-           :list-view-ex {:main-opts ["-m" "net.b12n.raygui-jlt.list-view-ex"]}}}
+           :list-view-ex {:main-opts ["-m" "net.b12n.raygui-jlt.list-view-ex"]}
+           :tab-bar {:main-opts ["-m" "net.b12n.raygui-jlt.tab-bar"]}}}

@@ -211,6 +211,10 @@
   {:doc "▶ a list view reporting focus and scroll"
    :task (run-example "list-view-ex")}
 
+  tab-bar
+  {:doc "▶ tabs with close requests"
+   :task (run-example "tab-bar")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

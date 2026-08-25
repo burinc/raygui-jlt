@@ -22,7 +22,8 @@
    ["dropdown-box" "dropdown-box" "collections" "a dropdown that owns its edit mode"]
    ["combo-box" "combo-box" "collections" "a combo box cycling through options"]
    ["list-view" "list-view" "collections" "a scrollable list with an active row"]
-   ["list-view-ex" "list-view-ex" "collections" "a list view reporting focus and scroll"]])
+   ["list-view-ex" "list-view-ex" "collections" "a list view reporting focus and scroll"]
+   ["tab-bar" "tab-bar" "collections" "tabs with close requests"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

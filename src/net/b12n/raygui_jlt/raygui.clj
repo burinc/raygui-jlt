@@ -809,3 +809,18 @@
       (pos? (gui-list-view-ex (bounds! x y w h) arr n
                               (ptr scroll) (ptr cell) (ptr focus))))))
 
+(defn tab-bar!
+  "GuiTabBar. :x :y :w :h :text :hscroll (an :int cell) :cell (an :int cell).
+
+  Returns the RAW result, not a boolean, because this control has three
+  outcomes: RESULT-NONE, RESULT-CHANGED for a selection, and RESULT-TAB-CLOSE
+  when the user clicks a tab's close box. On a close request :cell holds the tab
+  that was asked to close, and it is the caller's job to remove it — raygui owns
+  no list to remove it from."
+  [& {:keys [x y w h text hscroll cell]
+      :or {x 0
+           y 0
+           w 400
+           h 28
+           text ""}}]
+  (gui-tab-bar (bounds! x y w h) text (ptr hscroll) (ptr cell)))
