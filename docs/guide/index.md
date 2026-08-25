@@ -9,19 +9,6 @@ example programs on top of it.
 The suite is complete: 24 examples across 7 groups. `bb info` always prints the
 live count.
 
-## A few of them
-
-<p>
-<a href="../demos/style-selector.png"><img src="../demos/style-selector.png" width="150"></a>
-<a href="../demos/color-picker.png"><img src="../demos/color-picker.png" width="150"></a>
-<a href="../demos/floating-window.png"><img src="../demos/floating-window.png" width="150"></a>
-<a href="../demos/scroll-panel.png"><img src="../demos/scroll-panel.png" width="150"></a>
-<a href="../demos/icon-buttons.png"><img src="../demos/icon-buttons.png" width="150"></a>
-</p>
-
-Real captures of the running examples, not mockups; see
-[`example-catalog.md`](example-catalog.md) for the full set and how they were taken.
-
 ## Why this exists
 
 raygui is raylib's companion immediate-mode GUI library, and it turns out to be a
