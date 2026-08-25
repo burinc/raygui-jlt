@@ -12,6 +12,7 @@
   (:require
    [net.b12n.raygui-jlt.basic-controls]
    [net.b12n.raygui-jlt.combo-box]
+   [net.b12n.raygui-jlt.custom-input-box]
    [net.b12n.raygui-jlt.dropdown-box]
    [net.b12n.raygui-jlt.floating-window]
    [net.b12n.raygui-jlt.icon-buttons]

@@ -242,6 +242,10 @@
   {:doc "▶ a modal message box with two buttons"
    :task (run-example "message-box")}
 
+  custom-input-box
+  {:doc "▶ a hand-built input dialog over a panel"
+   :task (run-example "custom-input-box")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}
