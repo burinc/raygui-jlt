@@ -18,6 +18,10 @@
   [& _]
   (rl/window! :width 480 :height 280 :title "raygui [collections] example - tab bar")
   (rl/set-target-fps 60)
+  ;; The close 'x' is off by default: GuiTabBarEx gates it on this style flag and
+  ;; GuiLoadStyleDefault never sets it, so without this line the instruction
+  ;; below points at a button that is never drawn.
+  (rg/gui-set-style rg/TABBAR rg/TAB-CLOSE-BUTTON 1)
   (let [deadline (rl/auto-quit-deadline)
         hscroll (rg/cell :int 0)
         active (rg/cell :int 1)]

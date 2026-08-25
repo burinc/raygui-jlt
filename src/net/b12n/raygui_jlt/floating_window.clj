@@ -39,17 +39,22 @@
               my (rl/get-mouse-y)
               drag (cond
                      (not (rl/mouse-down? rl/MOUSE-LEFT)) nil
+                     ;; already dragging: carry the ALREADY-MAPPED index forward
+                     ;; untouched. Remapping here too re-applies an involution
+                     ;; every frame, so a held drag moves the WRONG window on
+                     ;; alternating frames. Verified by simulation.
                      (some? drag) drag
-                     :else (first
-                            (keep-indexed
-                             (fn [i [wx wy]]
-                               (when (in-title-bar? mx my wx wy 240)
-                                 [i (- mx wx) (- my wy)]))
-                             ;; reversed: the topmost window grabs first
-                             (reverse wins))))
-              ;; keep-indexed ran over the reversed vector, so map the index back
-              drag (when drag
-                     (let [[ri ox oy] drag] [(- (dec (count wins)) ri) ox oy]))
+                     :else (when-let [[ri ox oy]
+                                      (first
+                                       (keep-indexed
+                                        (fn [i [wx wy]]
+                                          (when (in-title-bar? mx my wx wy 240)
+                                            [i (- mx wx) (- my wy)]))
+                                        ;; reversed: the topmost window grabs first
+                                        (reverse wins)))]
+                             ;; keep-indexed ran over the REVERSED vector, so map
+                             ;; the index back exactly once, here at the grab.
+                             [(- (dec (count wins)) ri) ox oy]))
               wins (if drag
                      (let [[i ox oy] drag]
                        (assoc wins i [(- mx ox) (- my oy)]))

@@ -809,14 +809,31 @@
       (pos? (gui-list-view-ex (bounds! x y w h) arr n
                               (ptr scroll) (ptr cell) (ptr focus))))))
 
+(def ^:const TAB-CLOSE-BUTTON 17)   ; GuiTabBarProperty: 0-hidden, 1-shown
+
 (defn tab-bar!
   "GuiTabBar. :x :y :w :h :text :hscroll (an :int cell) :cell (an :int cell).
 
   Returns the RAW result, not a boolean, because this control has three
   outcomes: RESULT-NONE, RESULT-CHANGED for a selection, and RESULT-TAB-CLOSE
-  when the user clicks a tab's close box. On a close request :cell holds the tab
-  that was asked to close, and it is the caller's job to remove it — raygui owns
-  no list to remove it from."
+  when the user asks to close a tab. raygui owns no list, so removing it is the
+  caller's job.
+
+  TWO THINGS THE HEADER MAKES TRUE THAT THE OBVIOUS READING DOES NOT.
+
+  The close 'x' is NOT drawn unless you turn it on. GuiTabBarEx gates the whole
+  close-button block on `GuiGetStyle(TABBAR, TAB_CLOSE_BUTTON)` (raygui.h:3938)
+  and GuiLoadStyleDefault never sets it, so without
+  `(gui-set-style TABBAR TAB-CLOSE-BUTTON 1)` the button is simply absent.
+
+  And :cell is only trustworthy on the LEFT-click path. A middle-click anywhere
+  in a tab also raises RESULT-TAB-CLOSE (raygui.h:3933) but never runs the
+  branch that assigns *active, so there :cell still holds the PREVIOUSLY active
+  tab. raygui's own comment concedes it (\"consider focused tab\") and
+  GuiTabBarEx never populates *focus either, so there is no clean upstream fix.
+  With the close button enabled the left-click path is reliable, because the 'x'
+  rect sits inside the tab's own GuiToggle rect and so sets *active the same
+  frame."
   [& {:keys [x y w h text hscroll cell]
       :or {x 0
            y 0
@@ -833,13 +850,19 @@
 ;; scroll-panel!, which does clip and does offset — see Task 3.7.
 
 (defn panel!
-  "GuiPanel, a framed area with an optional title bar. :x :y :w :h :text."
+  "GuiPanel, a framed area with an optional title bar. :x :y :w :h :text.
+
+  OMIT :text for a headerless panel. GuiPanel skips the header bar and its
+  height offset only when the C string is NULL (raygui.h:1822), and jolt carries
+  Clojure nil across a :string as NULL, so leaving :text out gives a bare frame
+  while any string (INCLUDING \"\") reserves the header strip. There is
+  deliberately no :or default for :text: an :or default fires on nil as well as
+  on absence, which would make the headerless mode unreachable."
   [& {:keys [x y w h text]
       :or {x 0
            y 0
            w 200
-           h 120
-           text ""}}]
+           h 120}}]
   (gui-panel (bounds! x y w h) text))
 
 (defn group-box!

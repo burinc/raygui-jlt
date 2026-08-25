@@ -47,7 +47,11 @@
                    :text "focus = pointer, active = clicked")
 
         (rg/status-bar! :x 0 :y 276 :w 460 :h 24
-                        :text (str "  selected: " (nth items (max 0 (rg/value active)))))
+                        ;; -1 is a real state: clicking the selected row deselects.
+                        ;; (max 0 ...) would report row 0 as selected when nothing is.
+                        :text (if (neg? (rg/value active))
+                                "  nothing selected"
+                                (str "  selected: " (nth items (rg/value active)))))
         (rl/maybe-screenshot! frame 30)
         (rl/end-drawing)
         (recur (inc frame))))
