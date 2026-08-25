@@ -29,7 +29,8 @@
    ["window-box" "window-box" "containers" "a window box you can close and reopen"]
    ["floating-window" "floating-window" "containers" "two draggable floating windows"]
    ["message-box" "message-box" "dialogs" "a modal message box with two buttons"]
-   ["custom-input-box" "custom-input-box" "dialogs" "a hand-built input dialog over a panel"]])
+   ["custom-input-box" "custom-input-box" "dialogs" "a hand-built input dialog over a panel"]
+   ["color-picker" "color-picker" "color" "an RGB picker with an alpha bar"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

@@ -246,6 +246,10 @@
   {:doc "▶ a hand-built input dialog over a panel"
    :task (run-example "custom-input-box")}
 
+  color-picker
+  {:doc "▶ an RGB picker with an alpha bar"
+   :task (run-example "color-picker")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

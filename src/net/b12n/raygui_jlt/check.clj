@@ -11,6 +11,7 @@
   RAYGUI_APP_AUTO_QUIT_MS + RAYGUI_APP_SHOT smoke."
   (:require
    [net.b12n.raygui-jlt.basic-controls]
+   [net.b12n.raygui-jlt.color-picker]
    [net.b12n.raygui-jlt.combo-box]
    [net.b12n.raygui-jlt.custom-input-box]
    [net.b12n.raygui-jlt.dropdown-box]

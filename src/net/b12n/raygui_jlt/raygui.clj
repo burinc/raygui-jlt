@@ -943,3 +943,51 @@
            message ""
            buttons "OK"}}]
   (gui-message-box (bounds! x y w h) title message buttons (ptr result)))
+
+;; --- kwarg API: color --------------------------------------------------------
+;; The colour controls write a raylib Color into a :color cell — already in
+;; raylib's packed 0xAABBGGRR layout, NOT raygui's 0xRRGGBBAA style encoding. So
+;; a picked colour goes straight to a raylib drawing call, while a colour read
+;; from GuiGetStyle must go through style-color first. Two encodings, and only
+;; the style side needs converting.
+
+(defn color-picker!
+  "GuiColorPicker, a saturation/value square with a hue bar. :x :y :w :h :text
+  :cell (a :color cell). True on change."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 200
+           h 200
+           text ""}}]
+  (pos? (gui-color-picker (bounds! x y w h) text (ptr cell))))
+
+(defn color-panel!
+  "GuiColorPanel, the saturation/value square alone. :x :y :w :h :text :cell."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 200
+           h 200
+           text ""}}]
+  (pos? (gui-color-panel (bounds! x y w h) text (ptr cell))))
+
+(defn color-bar-alpha!
+  "GuiColorBarAlpha. :x :y :w :h :text :cell (a :float cell, 0.0 to 1.0)."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 200
+           h 20
+           text ""}}]
+  (pos? (gui-color-bar-alpha (bounds! x y w h) text (ptr cell))))
+
+(defn color-bar-hue!
+  "GuiColorBarHue. :x :y :w :h :text :cell (a :float cell, 0.0 to 360.0)."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 20
+           h 200
+           text ""}}]
+  (pos? (gui-color-bar-hue (bounds! x y w h) text (ptr cell))))
