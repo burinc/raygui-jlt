@@ -78,7 +78,9 @@ jobs:
       - name: Cache raylib build (Linux)
         if: runner.os == 'Linux'
         id: raylib-cache
-        uses: actions/cache@v4
+        # v4 targets Node 20, which the runners now force onto Node 24 with a
+        # deprecation warning. v6 targets a supported runtime.
+        uses: actions/cache@v6.1.0
         with:
           path: /tmp/raylib-install
           key: raylib-${{ runner.os }}-${{ env.RAYLIB_REF }}
