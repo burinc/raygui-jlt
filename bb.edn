@@ -74,6 +74,7 @@
       (when-not (lib-built?) (build-lib!)))
 
     (require '[examples-registry :as reg])
+    (require '[readme-table :as rt])
 
     (def by-name
       (into {} (map (fn [r] [(nth r 0) r]) reg/examples)))
@@ -165,6 +166,55 @@
          (println (str "\n" g))
          (doseq [row (get grouped g)]
            (println (str "  bb " (reg/pad (nth row 0) w) "  " (nth row 3)))))))}
+
+  readme:examples
+  {:doc "Regenerate the README example gallery from the registry"
+   :task
+   (do
+     (let [missing (rt/missing-demos repo-root)]
+       (when (seq missing)
+         (binding [*out* *err*]
+           (println "\u2717 missing screenshots:")
+           (doseq [row missing] (println (str "    " (rt/demo-path (nth row 0))))))
+         (System/exit 1)))
+     (let [path    (str repo-root "/README.md")
+           text    (slurp path)
+           spliced (rt/splice text (rt/html))]
+       (if spliced
+         (do (spit path spliced)
+             (println (str "\u2713 README gallery regenerated ("
+                           (count reg/examples) " examples)")))
+         (do (binding [*out* *err*]
+               (println "\u2717 README markers not found. Expected both of:")
+               (println (str "    " rt/begin-marker))
+               (println (str "    " rt/end-marker)))
+             (System/exit 1)))))}
+
+  readme:examples-check
+  {:doc "Fail if the README gallery is stale or an example lacks a screenshot"
+   :task
+   (do
+     (let [missing (rt/missing-demos repo-root)
+           path    (str repo-root "/README.md")
+           text    (slurp path)
+           spliced (rt/splice text (rt/html))]
+       (cond
+         (seq missing)
+         (do (binding [*out* *err*]
+               (println "\u2717 missing screenshots:")
+               (doseq [row missing] (println (str "    " (rt/demo-path (nth row 0))))))
+             (System/exit 1))
+
+         (nil? spliced)
+         (do (binding [*out* *err*] (println "\u2717 README markers not found"))
+             (System/exit 1))
+
+         (not= spliced text)
+         (do (binding [*out* *err*]
+               (println "\u2717 README gallery is stale - run bb readme:examples"))
+             (System/exit 1))
+
+         :else (println "\u2713 README gallery matches the registry"))))}
 
   docs-sync
   {:doc "Republish the docs: rebuild -> push site repo -> mirror to wiki -> S3 + CloudFront. Maintainer task (needs sibling repos, AWS_PROFILE=b12n). bb docs-sync [--no-push]"
