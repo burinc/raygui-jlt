@@ -209,9 +209,10 @@
 ;;
 ;; Clojure evaluates arguments left to right, so writing both rects through one
 ;; buffer means the second write clobbers the first and BOTH pointers hand raygui
-;; the same rectangle. Measured: a scroll panel declared at 200x90 rendered at its
-;; 600x400 content size, covering the window, with no error. The panel still
-;; drew, scrollbars and all, which is what makes it dangerous.
+;; the same rectangle. Measured on the shipped example: a scroll panel declared
+;; at 300x200 rendered at its 560x420 content size, covering the window, with no
+;; error. The panel still drew, scrollbars and all, which is what makes it
+;; dangerous.
 ;;
 ;; Two buffers is the whole fix. There is no third case: no other raygui function
 ;; takes more than one by-value struct.
@@ -887,9 +888,10 @@
   NOTE the two scratch buffers. This is the ONLY control taking two by-value
   Rectangles in one call, and Clojure evaluates arguments left to right, so
   writing both through `bounds!` would let the content rect clobber the bounds
-  rect and hand raygui the same rectangle twice. Measured, when that happens: a
-  panel declared 200x90 renders at its 600x400 content size, covering the
-  window, scrollbars and all, with no error to notice. `content!` writes the
+  rect and hand raygui the same rectangle twice. Measured on the shipped
+  example, when that happens: a panel declared 300x200 renders at its 560x420
+  content size, covering the window, scrollbars and all, with no error to
+  notice. `content!` writes the
   second buffer. Do not 'simplify' this to one call."
   [& {:keys [x y w h text content-w content-h scroll view]
       :or {x 0
