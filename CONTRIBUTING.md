@@ -66,13 +66,17 @@ and filed away, looked at:
 RAYGUI_APP_AUTO_QUIT_MS=1500 RAYGUI_APP_SHOT=proof.png jolt -M:<alias>
 ```
 
-raylib writes the path's **basename into the current working directory**, not
-wherever you pointed it. This project has shipped multiple examples that compiled
-cleanly, passed lint and format, and rendered a plausible, wrong result: a scroll
-panel filling the window instead of clipping to its declared size, a style color
-with red and blue swapped, a dialog whose Cancel and OK buttons silently did each
-other's job. None of those threw an exception. All of them were visible the moment
-someone looked at the PNG. See
+raylib **prepends the working directory** to whatever path you hand it, so a
+relative path such as `docs/demos/x.png` lands where you expect and an absolute
+path becomes cwd + path and silently writes nothing. Keep the path relative. The
+helper checks the file appeared and prints `SHOT FAILED` if it did not.
+
+This project has shipped multiple examples that compiled cleanly, passed lint
+and format, and rendered a plausible, wrong result: a scroll panel filling the
+window instead of clipping to its declared size, a style color with red and blue
+swapped, a dialog whose Cancel and OK buttons silently did each other's job.
+None of those threw an exception. All of them were visible the moment someone
+looked at the PNG. See
 [`docs/guide/what-the-gates-do-not-catch.md`](docs/guide/what-the-gates-do-not-catch.md)
 for the full list and how each was found.
 

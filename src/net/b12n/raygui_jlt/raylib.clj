@@ -13,6 +13,7 @@
   scalar-argument variants, so the only by-value struct crossing this boundary is
   Color, a 4-byte {u8 r,g,b,a} packed into a :uint (see `rgba`)."
   (:require
+   [clojure.java.io :as io]
    [jolt.ffi :as ffi]))
 
 ;; --- Color -------------------------------------------------------------------
@@ -208,9 +209,21 @@
   the flush writes a perfectly blank frame. A blank PNG means this flush is
   missing, not that the example drew nothing.
 
-  raylib writes the file's basename into the current working directory."
+  raylib PREPENDS the process working directory to whatever path it is handed,
+  so a relative path like docs/demos/x.png lands where you expect while an
+  ABSOLUTE path becomes cwd + path, fails to open, and is reported only as a
+  raylib WARNING on stderr. Pass a relative path.
+
+  TakeScreenshot returns void and swallows that failure, so this checks the
+  file actually appeared rather than announcing success on raylib's behalf: a
+  screenshot that silently wrote nothing would defeat the one gate this project
+  relies on for visual correctness."
   [frame at]
   (when (and shot-path (= frame at))
     (flush-batch)
     (take-screenshot shot-path)
-    (binding [*out* *err*] (println "[net.b12n.raygui-jlt] SHOT" shot-path))))
+    (binding [*out* *err*]
+      (if (.exists (io/file shot-path))
+        (println "[net.b12n.raygui-jlt] SHOT" shot-path)
+        (println "[net.b12n.raygui-jlt] SHOT FAILED" shot-path
+                 "- raylib prepends the working directory, so this path must be relative")))))

@@ -82,6 +82,10 @@ RAYGUI_APP_AUTO_QUIT_MS=1500 jolt -M:basic-controls   # close the window after 1
 RAYGUI_APP_SHOT=proof.png    jolt -M:basic-controls   # dump one frame as a PNG
 ```
 
+The shot path must be **relative**: raylib prepends the working directory to it,
+so an absolute path writes nothing. The helper verifies the file appeared and
+prints `SHOT FAILED` rather than reporting a success it did not have.
+
 **The PNG is the gate.** For a GUI toolkit, a headless compile check proves the code
 loads, not that it renders correctly; several traps documented in the guide render a
 plausible, wrong result rather than throwing. Looking at the screenshot is what
