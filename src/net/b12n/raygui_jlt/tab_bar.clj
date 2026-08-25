@@ -16,7 +16,7 @@
 
 (defn -main
   [& _]
-  (rl/window! :width 480 :height 280 :title "raygui [collections] example - tab bar")
+  (rl/window! :width 700 :height 280 :title "raygui [collections] example - tab bar")
   (rl/set-target-fps 60)
   ;; The close 'x' is off by default: GuiTabBarEx gates it on this style flag and
   ;; GuiLoadStyleDefault never sets it, so without this line the instruction
@@ -31,9 +31,9 @@
         (let [result (do
                        (rl/begin-drawing)
                        (rl/clear-background (rg/style-color rg/DEFAULT rg/BACKGROUND-COLOR))
-                       (rg/label! :x 20 :y 12 :w 440 :h 24
+                       (rg/label! :x 20 :y 12 :w 660 :h 24
                                   :text "click a tab to select, its x to close")
-                       (rg/tab-bar! :x 20 :y 44 :w 440 :h 28
+                       (rg/tab-bar! :x 20 :y 44 :w 660 :h 28
                                     :text (str/join ";" tabs)
                                     :hscroll hscroll :cell active))
               closing (when (= rg/RESULT-TAB-CLOSE result) (rg/value active))
@@ -45,12 +45,12 @@
           (when (>= (rg/value active) (count tabs'))
             (rg/reset-cell! active (dec (count tabs'))))
 
-          (rg/dummy-rec! :x 20 :y 84 :w 440 :h 120
+          (rg/dummy-rec! :x 20 :y 84 :w 660 :h 120
                          :text (str "content of " (nth tabs' (max 0 (min (rg/value active)
                                                                          (dec (count tabs')))))))
-          (rg/label! :x 20 :y 216 :w 440 :h 24
+          (rg/label! :x 20 :y 216 :w 660 :h 24
                      :text (str (count tabs') " tabs, active = " (rg/value active)))
-          (rg/status-bar! :x 0 :y 256 :w 480 :h 24
+          (rg/status-bar! :x 0 :y 256 :w 700 :h 24
                           :text "  RESULT-TAB-CLOSE says which tab; you remove it")
           (rl/maybe-screenshot! frame 30)
           (rl/end-drawing)
