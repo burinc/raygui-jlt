@@ -19,41 +19,41 @@ actually true right now, not this page's memory of it.
 
 ## basics
 
-| preview | `bb` name | what it shows |
+| preview | `bb` name | what it demonstrates |
 |---|---|---|
-| [<img src="../demos/basic-controls.png" width="180">](../demos/basic-controls.png) | `basic-controls` | button, label and a live click counter |
-| [<img src="../demos/icon-buttons.png" width="180">](../demos/icon-buttons.png) | `icon-buttons` | the embedded 1-bit icon pack on buttons |
-| [<img src="../demos/labels-lines.png" width="180">](../demos/labels-lines.png) | `labels-lines` | labels, separators and a status bar |
-| [<img src="../demos/toggles.png" width="180">](../demos/toggles.png) | `toggles` | toggle, toggle group and toggle slider |
+| [<img src="../demos/basic-controls.png" width="180">](../demos/basic-controls.png) | `basic-controls` | The smallest complete raygui program: a button, a label and a checkbox over a live click counter. It proves the vendored library loaded, the by-value Rectangle reached the right bounds, and a `:bool` cell round-tripped through raygui's pointer API. |
+| [<img src="../demos/icon-buttons.png" width="180">](../demos/icon-buttons.png) | `icon-buttons` | raygui ships 256 icons inside the header itself, so there is no image file to load. An icon reaches a control through its text: `GuiIconText` prepends a `#nnn#` marker that any control renders as the icon, while `GuiDrawIcon` draws one directly at a pixel size. The last row sets icon scale to 2, a reminder that the scale is global and persists until it is set back. |
+| [<img src="../demos/labels-lines.png" width="180">](../demos/labels-lines.png) | `labels-lines` | The controls that carry no state: labels at three text alignments, separators with and without a caption, a placeholder box and a status bar. Also the one thing to watch about raygui styling: style properties are global and persist across frames, so a control that changes `TEXT_ALIGNMENT` for itself has to restore it, or every later control inherits it. |
+| [<img src="../demos/toggles.png" width="180">](../demos/toggles.png) | `toggles` | The three toggle controls side by side. `GuiToggle` is a single on/off button over a `:bool` cell; `GuiToggleGroup` and `GuiToggleSlider` both take their options as one semicolon-separated string and report the selected index through an `:int` cell, raygui's usual way of passing a list without an array crossing the FFI boundary. |
 
 ## inputs
 
-| preview | `bb` name | what it shows |
+| preview | `bb` name | what it demonstrates |
 |---|---|---|
-| [<img src="../demos/text-box.png" width="180">](../demos/text-box.png) | `text-box` | an editable text box with edit mode |
-| [<img src="../demos/text-input-box.png" width="180">](../demos/text-input-box.png) | `text-input-box` | a modal text prompt with secret toggle |
-| [<img src="../demos/spinner-value-box.png" width="180">](../demos/spinner-value-box.png) | `spinner-value-box` | spinner and value box, clamped and typed |
-| [<img src="../demos/sliders.png" width="180">](../demos/sliders.png) | `sliders` | slider, slider bar and their value cells |
-| [<img src="../demos/progress-bar.png" width="180">](../demos/progress-bar.png) | `progress-bar` | a progress bar driven by a timer |
+| [<img src="../demos/text-box.png" width="180">](../demos/text-box.png) | `text-box` | An editable text box, and the edit-mode pattern every text-entry control in raygui uses. raygui keeps no memory of which box is being edited: the control returns non-zero when it wants the mode toggled, and the application flips its own `:bool` cell, so the same mechanism that carries control values also carries UI state. The buffer itself is a `:text` cell, a fixed char array raygui edits in place. |
+| [<img src="../demos/text-input-box.png" width="180">](../demos/text-input-box.png) | `text-input-box` | `GuiTextInputBox`, a modal prompt built from a title, a message, an entry and a button row. The button row is one semicolon-separated string and the result arrives as an index in an `:int` cell, exactly like the toggle group. The optional secret cell adds a show/hide toggle and masks the entry, which is why it is a cell rather than a plain flag. |
+| [<img src="../demos/spinner-value-box.png" width="180">](../demos/spinner-value-box.png) | `spinner-value-box` | The two integer entry controls. `GuiSpinner` has increment and decrement buttons; `GuiValueBox` is the same field without them, for typing a number directly. Both clamp to their own min and max once editing ends, but not while typing, so the cell can transiently hold an out-of-range value mid-edit. Both carry the edit-mode pattern from `text-box`. |
+| [<img src="../demos/sliders.png" width="180">](../demos/sliders.png) | `sliders` | `GuiSlider` and `GuiSliderBar` over `:float` cells. The two differ only in appearance: the slider draws a handle on a plain track, the slider bar fills the track up to the value. Both write straight into a `:float` cell, which is the whole of their state. The bottom row feeds a slider's value into a raylib circle, showing that a control's value is just a number once it is read back. |
+| [<img src="../demos/progress-bar.png" width="180">](../demos/progress-bar.png) | `progress-bar` | `GuiProgressBar`, the one control the user cannot move. It still takes its value by pointer like every other control, because raygui's API is uniform, but nothing in the control writes back: the application advances the cell. Here a timer does it, wrapping at 100%, with a second bar showing the same value against a different range. |
 
 ## collections
 
-| preview | `bb` name | what it shows |
+| preview | `bb` name | what it demonstrates |
 |---|---|---|
-| [<img src="../demos/dropdown-box.png" width="180">](../demos/dropdown-box.png) | `dropdown-box` | a dropdown that owns its edit mode |
-| [<img src="../demos/combo-box.png" width="180">](../demos/combo-box.png) | `combo-box` | a combo box cycling through options |
-| [<img src="../demos/list-view.png" width="180">](../demos/list-view.png) | `list-view` | a scrollable list with an active row |
-| [<img src="../demos/list-view-ex.png" width="180">](../demos/list-view-ex.png) | `list-view-ex` | a list view reporting focus and scroll |
-| [<img src="../demos/tab-bar.png" width="180">](../demos/tab-bar.png) | `tab-bar` | tabs with close requests |
+| [<img src="../demos/dropdown-box.png" width="180">](../demos/dropdown-box.png) | `dropdown-box` | `GuiDropdownBox`, and the one layout rule immediate mode imposes. An open dropdown paints its list outside its own bounds, and raygui has no z-order, so draw order is paint order: a dropdown has to be drawn last, or whatever comes after it paints over the open list. This example draws its content first and the two dropdowns last, deliberately. |
+| [<img src="../demos/combo-box.png" width="180">](../demos/combo-box.png) | `combo-box` | `GuiComboBox`, the dropdown's simpler sibling. It never opens a list: a click just advances to the next option in place, which makes it stateless in the UI sense, no edit mode to own, no draw-order rule to respect, at the cost of being slow to reach a distant option. The two controls here deliberately share ONE cell, so clicking either moves both: the cell is the state, and each control is only a view of it. |
+| [<img src="../demos/list-view.png" width="180">](../demos/list-view.png) | `list-view` | `GuiListView` over a semicolon-separated string. Two cells, because raygui writes to both: one holds the scroll position (the index of the first visible row) and one the selection, where -1 means nothing is selected. Neither is remembered by the control between frames. The list holds more rows than fit, so the scrollbar is live. |
+| [<img src="../demos/list-view-ex.png" width="180">](../demos/list-view-ex.png) | `list-view-ex` | `GuiListViewEx`, the list view that takes a real string array and reports focus. This is one of only two raygui functions taking a real `char**` array rather than a semicolon string, so it is where an array actually crosses the FFI boundary: jolt's `with-c-string-array` builds it and frees every member plus the array itself on the way out, so the control is called inside that body rather than the array being handed back. The extra cell is `:focus`, the row the pointer is over, which is not the same as the row that is selected. |
+| [<img src="../demos/tab-bar.png" width="180">](../demos/tab-bar.png) | `tab-bar` | `GuiTabBar`, and the one result value that is not a yes or no. Every other control answers "nothing happened" or "something changed"; the tab bar has a third answer, `RESULT-TAB-CLOSE`, meaning the user clicked a tab's close box. raygui does not own the tab list, so it cannot remove anything: it reports which tab and the application decides. Here closing a tab really removes it, so the list shrinks. |
 
 ## containers
 
-| preview | `bb` name | what it shows |
+| preview | `bb` name | what it demonstrates |
 |---|---|---|
-| [<img src="../demos/panel-group-box.png" width="180">](../demos/panel-group-box.png) | `panel-group-box` | panels and group boxes as containers |
-| [<img src="../demos/scroll-panel.png" width="180">](../demos/scroll-panel.png) | `scroll-panel` | a scroll panel over oversized content. Port of raygui's own `scroll_panel` example. |
-| [<img src="../demos/window-box.png" width="180">](../demos/window-box.png) | `window-box` | a window box you can close and reopen |
-| [<img src="../demos/floating-window.png" width="180">](../demos/floating-window.png) | `floating-window` | two draggable floating windows. Port of raygui's own `floating_window` example. |
+| [<img src="../demos/panel-group-box.png" width="180">](../demos/panel-group-box.png) | `panel-group-box` | `GuiPanel` and `GuiGroupBox`, and what a container is not. Neither one contains anything: they draw a frame, they do not clip, do not own children, and do not offset what is drawn inside them. A control appears "inside" a panel only because its coordinates fall within the panel's rectangle and it was drawn afterwards, which is all containment means in immediate mode. The proof is the last group box, where a button is drawn deliberately overflowing it and nothing stops it. |
+| [<img src="../demos/scroll-panel.png" width="180">](../demos/scroll-panel.png) | `scroll-panel` | `GuiScrollPanel`, the only container that really clips, and the only control taking two by-value Rectangles in one call: its own bounds and the size of the content behind it. raygui writes back the scroll offset and the visible region so the caller knows how to draw the content shifted; drawing the content into a scissor region offset by that scroll is the caller's job, since raygui clips its own chrome, not the caller's drawing. Port of raygui's own `scroll_panel` example. |
+| [<img src="../demos/window-box.png" width="180">](../demos/window-box.png) | `window-box` | `GuiWindowBox`, a panel with a title bar and a close button. Closing it does nothing on raygui's side: there is no window object to destroy and no visibility flag to clear, the control just reports that the close button was clicked and the application stops calling it. Reopening is just calling it again. |
+| [<img src="../demos/floating-window.png" width="180">](../demos/floating-window.png) | `floating-window` | Draggable windows, hand-rolled because raygui has no window manager. The application watches for a press inside a title bar, remembers the grab offset and moves its own coordinates; the window box itself never knows it moved. Two windows also make the draw-order rule concrete, since there is no z-order either: the one drawn last is the one on top, and clicking a window that is behind does not raise it. Port of raygui's own `floating_window` example. |
 
 ## What the previews are
 
