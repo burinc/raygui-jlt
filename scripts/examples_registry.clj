@@ -30,7 +30,10 @@
    ["floating-window" "floating-window" "containers" "two draggable floating windows"]
    ["message-box" "message-box" "dialogs" "a modal message box with two buttons"]
    ["custom-input-box" "custom-input-box" "dialogs" "a hand-built input dialog over a panel"]
-   ["color-picker" "color-picker" "color" "an RGB picker with an alpha bar"]])
+   ["color-picker" "color-picker" "color" "an RGB picker with an alpha bar"]
+   ["color-picker-hsv" "color-picker-hsv" "color" "the HSV picker and panel"]
+   ["style-selector" "style-selector" "styling" "cycle six vendored .rgs style themes"]
+   ["gui-state" "gui-state" "styling" "enable, disable, lock and alpha states"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

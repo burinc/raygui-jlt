@@ -250,6 +250,18 @@
   {:doc "▶ an RGB picker with an alpha bar"
    :task (run-example "color-picker")}
 
+  color-picker-hsv
+  {:doc "▶ the HSV picker and panel"
+   :task (run-example "color-picker-hsv")}
+
+  style-selector
+  {:doc "▶ cycle six vendored .rgs style themes"
+   :task (run-example "style-selector")}
+
+  gui-state
+  {:doc "▶ enable, disable, lock and alpha states"
+   :task (run-example "gui-state")}
+
   lint
   {:doc "clj-kondo over src + scripts (report only)"
    :task (apply shell {:continue true}

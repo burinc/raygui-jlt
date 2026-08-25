@@ -37,4 +37,7 @@
            :floating-window {:main-opts ["-m" "net.b12n.raygui-jlt.floating-window"]}
            :message-box {:main-opts ["-m" "net.b12n.raygui-jlt.message-box"]}
            :custom-input-box {:main-opts ["-m" "net.b12n.raygui-jlt.custom-input-box"]}
-           :color-picker {:main-opts ["-m" "net.b12n.raygui-jlt.color-picker"]}}}
+           :color-picker {:main-opts ["-m" "net.b12n.raygui-jlt.color-picker"]}
+           :color-picker-hsv {:main-opts ["-m" "net.b12n.raygui-jlt.color-picker-hsv"]}
+           :style-selector {:main-opts ["-m" "net.b12n.raygui-jlt.style-selector"]}
+           :gui-state {:main-opts ["-m" "net.b12n.raygui-jlt.gui-state"]}}}

@@ -991,3 +991,75 @@
            h 200
            text ""}}]
   (pos? (gui-color-bar-hue (bounds! x y w h) text (ptr cell))))
+
+(defn color-picker-hsv!
+  "GuiColorPickerHSV. :x :y :w :h :text :cell (a :vector3 cell, [h s v]).
+
+  Hue is 0-360, saturation and value 0-1. Distinct from color-picker! in what it
+  STORES, not how it looks: the HSV variant keeps the cell in HSV, so a grey
+  keeps its hue instead of collapsing to an arbitrary one on the round trip
+  through RGB. True on change."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 200
+           h 200
+           text ""}}]
+  (pos? (gui-color-picker-hsv (bounds! x y w h) text (ptr cell))))
+
+(defn color-panel-hsv!
+  "GuiColorPanelHSV, the square alone. :x :y :w :h :text :cell (a :vector3 cell)."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 200
+           h 200
+           text ""}}]
+  (pos? (gui-color-panel-hsv (bounds! x y w h) text (ptr cell))))
+
+;; --- vendored styles ---------------------------------------------------------
+;; Six of upstream's nineteen .rgs themes, vendored under vendor/styles. Each is
+;; a few KB and self-contained: the palette AND the font are inside the file, so
+;; loading one needs nothing else on disk.
+;;
+;; The paths are repo-relative, which is fine because load-style! reads the bytes
+;; Clojure-side rather than handing raygui a path — a CWD change moves where the
+;; file is found, but it cannot make raygui silently fail to find it.
+(def styles
+  [["default"  nil]
+   ["dark"     "vendor/styles/style_dark.rgs"]
+   ["cyber"    "vendor/styles/style_cyber.rgs"]
+   ["terminal" "vendor/styles/style_terminal.rgs"]
+   ["candy"    "vendor/styles/style_candy.rgs"]
+   ["ashes"    "vendor/styles/style_ashes.rgs"]
+   ["sunny"    "vendor/styles/style_sunny.rgs"]])
+
+(defn apply-style!
+  "Load the style at `index` in `styles`. A nil path means raygui's built-in."
+  [index]
+  (let [[_ path] (nth styles index)]
+    (if path
+      (load-style! path)
+      (load-style-default!))))
+
+;; --- kwarg API: styling ------------------------------------------------------
+;; Global state, all of it persistent until set back. These are thin wrappers
+;; that exist so an example never touches a raw binding for something it must
+;; remember to undo.
+
+(defn set-state!
+  "GuiSetState. Forces every control drawn afterwards into one visual state
+  until it is set back to STATE-NORMAL."
+  [state]
+  (gui-set-state state))
+
+(defn set-alpha!
+  "GuiSetAlpha, 0.0 to 1.0. Global and persistent."
+  [alpha]
+  (gui-set-alpha (double alpha)))
+
+(defn tooltip!
+  "Enable tooltips and set the text for the next control drawn."
+  [text]
+  (gui-enable-tooltip)
+  (gui-set-tooltip text))
