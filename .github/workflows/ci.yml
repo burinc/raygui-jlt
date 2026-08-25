@@ -1,0 +1,263 @@
+name: CI
+
+# ---------------------------------------------------------------------------
+# Runs on pull requests and pushes to main, plus manual dispatch.
+#
+# Actions is free for standard runners on public repositories, which this repo
+# is, so the PR gate costs nothing.
+#
+# Two jobs, because this project's two platforms are not equally proven.
+# macOS is what the suite is developed and screenshotted on. The Linux
+# compiler flags in bb.edn were written from the macOS ones and shipped
+# documented as UNTESTED; this workflow is the first thing that actually
+# exercises them, which is the point of running it there.
+#
+# The gate that matters most is "Compile every example": it is the only check
+# that catches a new example missing its `check.clj` require, the easiest of
+# the five touchpoints to skip (see CONTRIBUTING.md).
+# ---------------------------------------------------------------------------
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      jolt-version:
+        description: "jolt version to install (blank = the pinned default)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  # Pinned rather than tracking the latest release, so a red build means this
+  # repo changed and not that jolt did. Floor is 0.7.23, where
+  # `[:by-value [:struct ...]]` landed, which every Rectangle-taking binding
+  # depends on. Verified locally against the full suite before pinning.
+  JOLT_VERSION: "v0.7.25"
+  # Pinned so a red build means this repo changed, not raylib.
+  RAYLIB_REF: "6.0"
+
+jobs:
+  gates:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Don't cancel the proven platform's run because the experimental one
+      # failed; when Linux breaks, the macOS result is the thing that says
+      # whether the change itself was sound.
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      # raygui is HEADER-ONLY: there is no libraygui package anywhere, and no
+      # Homebrew formula for it. This repo vendors raygui.h and compiles its
+      # own library. raylib is the real dependency, because raygui calls
+      # raylib's input and drawing functions internally.
+      - name: Install raylib (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update --quiet || true
+          brew install raylib
+          ls -l "$(brew --prefix)/lib/"libraylib* || true
+
+      # Ubuntu has NO libraylib-dev, verified against 24.04 with universe
+      # enabled: the only thing `apt-cache search raylib` returns is
+      # python3-xraylib, an unrelated X-ray physics library. So the source
+      # build is the only path here, not a fallback, and it is cached because
+      # it would otherwise run on every push.
+      #
+      # It installs into a staging prefix so the cache can hold plain files;
+      # caching /usr/local directly would drag in unrelated runner content.
+      - name: Cache raylib build (Linux)
+        if: runner.os == 'Linux'
+        id: raylib-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/raylib-install
+          key: raylib-${{ runner.os }}-${{ env.RAYLIB_REF }}
+
+      - name: Build raylib from source (Linux)
+        if: runner.os == 'Linux' && steps.raylib-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake git \
+            libasound2-dev libx11-dev libxrandr-dev libxi-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev \
+            libxinerama-dev libxkbcommon-dev
+          git clone --depth 1 --branch "$RAYLIB_REF" \
+            https://github.com/raysan5/raylib /tmp/raylib
+          cmake -S /tmp/raylib -B /tmp/raylib/build \
+            -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF \
+            -DCMAKE_INSTALL_PREFIX=/tmp/raylib-install
+          cmake --build /tmp/raylib/build -j"$(nproc)"
+          cmake --install /tmp/raylib/build
+
+      # Runs on both cache hit and miss: the cache holds the staged files, and
+      # they still have to reach the linker's default search path.
+      - name: Install raylib into the system prefix (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          # The X11/GL runtime deps are needed even on a cache hit, since the
+          # cache only carries raylib's own artefacts.
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libasound2-dev libx11-dev libxrandr-dev libxi-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev \
+            libxinerama-dev libxkbcommon-dev
+          sudo cp -a /tmp/raylib-install/. /usr/local/
+          sudo ldconfig
+          ldconfig -p | grep -m1 libraylib || { echo "::error::libraylib not visible to the linker"; exit 1; }
+          test -f /usr/local/include/raylib.h || { echo "::error::raylib.h missing; bb lib:build compiles against it"; exit 1; }
+
+      # Official install script from jolt's README. The Linux build is
+      # x86_64-only and needs glibc 2.35+; ubuntu-latest satisfies both.
+      # The version comes through env rather than being interpolated into the
+      # script body, so a workflow_dispatch input cannot inject shell.
+      - name: Install jolt
+        env:
+          REQUESTED: ${{ inputs.jolt-version }}
+        run: |
+          set -euo pipefail
+          version="${REQUESTED:-$JOLT_VERSION}"
+          curl -sSL https://raw.githubusercontent.com/jolt-lang/jolt/main/install \
+            | bash -s -- --version "$version"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: jolt is on PATH
+        run: jolt --version
+
+      # Pinned to match what the maintainer runs locally and what the
+      # `bb hooks:install` pre-commit hook enforces. Floating these to latest
+      # would let CI disagree with a clean local commit whenever clj-kondo or
+      # clojure-lsp changes a default.
+      - uses: DeLaGuardo/setup-clojure@13.6.1
+        with:
+          bb: 1.12.196
+          clj-kondo: "2026.05.25"
+          cli: latest
+
+      - uses: clojure-lsp/setup-clojure-lsp@v1.0.3
+        with:
+          clojure-lsp-version: "2026.05.05-12.58.26"
+
+      - name: Build libraygui from the vendored header
+        run: bb lib:build
+
+      # `bb lib:check` PRINTS its findings and always exits 0, so it cannot
+      # gate anything. It runs here for the log, and the real assertions are
+      # the step below.
+      - name: Report library state
+        run: bb lib:check
+
+      # The check that protects the project's central invariant. raygui must
+      # reach the SAME libraylib instance jolt loads at runtime. Linked
+      # statically it gets a second, private copy of raylib's globals, so
+      # every control reads a mouse that never moves and goes silently inert
+      # with no error and no crash. Nothing else in this workflow can see that
+      # happen, because the examples compile and exit fine either way.
+      - name: libraygui exports Gui* and links raylib DYNAMICALLY
+        run: |
+          set -euo pipefail
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            lib=lib/libraygui.dylib
+            symbols=$(nm -gU "$lib" | grep -c ' T _Gui' || true)
+            echo "::group::otool -L"; otool -L "$lib"; echo "::endgroup::"
+            linkage=$(otool -L "$lib" | grep -i raylib || true)
+          else
+            lib=lib/libraygui.so
+            symbols=$(nm -D --defined-only "$lib" | grep -c ' T Gui' || true)
+            echo "::group::ldd"; ldd "$lib"; echo "::endgroup::"
+            linkage=$(ldd "$lib" | grep -i raylib || true)
+          fi
+
+          echo "exported Gui* symbols: $symbols"
+          if [ "$symbols" -lt 50 ]; then
+            echo "::error title=libraygui looks empty::only $symbols Gui* symbols exported, expected ~59"
+            exit 1
+          fi
+
+          if [ -z "$linkage" ]; then
+            echo "::error title=raylib is not dynamically linked::libraygui does not reference libraylib. Statically linked raygui gets its own copy of raylib's globals and every control goes silently inert."
+            exit 1
+          fi
+          echo "raylib linkage: $linkage"
+
+      # The gate that matters most: compiles all 24 example namespaces
+      # headlessly, no window and no display required.
+      #
+      # Failure output is echoed normally AND re-emitted as an ::error::
+      # annotation plus a job summary, because annotations and summaries are
+      # readable without downloading the log archive, which some networks
+      # block. A bare `run: bb check` leaves a reader with only "exit code 1".
+      - name: Compile every example (headless)
+        run: |
+          set +e
+          out="$(bb check 2>&1)"; rc=$?
+          printf '%s\n' "$out"
+          if [ "$rc" -ne 0 ]; then
+            {
+              printf '### `bb check` failed on %s (exit %s)\n\n```\n%s\n```\n' \
+                "$RUNNER_OS" "$rc" "$(printf '%s\n' "$out" | tail -60)"
+            } >> "$GITHUB_STEP_SUMMARY"
+            printf '%s\n' "$out" | tail -c 2000 \
+              | python3 -c 'import sys; print("::error title=bb check failed::" + sys.stdin.read().replace("%","%25").replace("\r","%0D").replace("\n","%0A"))'
+          fi
+          exit "$rc"
+
+      # Enforces the 49-character description cap, which `bb examples` exits
+      # non-zero on. Cheap, and it keeps the registry rendering as a table.
+      - name: Example registry
+        run: bb examples
+
+      # The README gallery is generated from the registry. This fails if it is
+      # stale or if an example has no committed screenshot, so a new example
+      # cannot land with a broken image in the README.
+      - name: README gallery matches the registry
+        run: bb readme:examples-check
+
+      - name: clj-kondo
+        run: bb lint:strict
+
+      # Formatting is owned by clojure-lsp, not cljfmt. See the note at the
+      # top of bb.edn for why only one formatter runs against src.
+      - name: Formatting
+        run: bb lsp:format-check
+
+      - name: Namespace forms
+        run: bb lsp:clean-ns-check
+
+      # Runs only when something above failed. The linkage facts are what
+      # distinguish "library missing" from "library present but unloadable",
+      # which look identical from a compile error alone.
+      - name: Diagnostics (on failure)
+        if: failure()
+        run: |
+          set +e
+          {
+            echo "os:    $RUNNER_OS"
+            echo "jolt:  $(jolt --version 2>&1 | head -1)"
+            echo "bb:    $(bb --version 2>&1 | head -1)"
+            echo
+            echo "lib/:"; ls -l lib/ 2>&1
+            echo
+            if [ "$RUNNER_OS" = "macOS" ]; then
+              echo "raylib in brew prefix:"; ls -l "$(brew --prefix)/lib/"libraylib* 2>&1
+              echo; echo "otool -L libraygui:"; otool -L lib/libraygui.dylib 2>&1
+            else
+              echo "libraylib per ldconfig:"; ldconfig -p | grep raylib 2>&1
+              echo; echo "ldd libraygui:"; ldd lib/libraygui.so 2>&1
+            fi
+          } > /tmp/diag.txt
+          cat /tmp/diag.txt
+          { printf '### Diagnostics (%s)\n\n```\n' "$RUNNER_OS"; cat /tmp/diag.txt; printf '```\n'; } \
+            >> "$GITHUB_STEP_SUMMARY"

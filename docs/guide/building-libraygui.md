@@ -81,19 +81,38 @@ is what makes the previous section true. If that line is missing, or points
 somewhere other than the raylib you expect, the build has silently gone wrong in
 exactly the way that produces inert controls.
 
-## Linux: untested
+## Linux
 
 ```sh
 cc -O2 -shared -fPIC -DBUILD_LIBTYPE_SHARED \
    -I vendor \
-   -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 \
-   -o lib/libraygui.so vendor/raygui_impl.c
+   -o lib/libraygui.so vendor/raygui_impl.c \
+   -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 ```
 
-These flags are written from the macOS invocation, using the distro-default include
-and library search paths instead of Homebrew's. **They have not been run.** Do not
-treat them as working until someone builds and screenshots at least one example on
-Linux.
+These now run in CI on every push, against a raylib 6.0 built from source.
+
+**The library flags must come after `raygui_impl.c`.** They used to sit before it,
+copied from the macOS invocation where order does not matter, and that was wrong in
+a way worth describing because it fails silently in this project's signature style:
+
+- GNU ld resolves left to right, and Ubuntu links with `--as-needed` by default.
+- A `-lraylib` placed before the translation unit that needs it therefore records
+  no `DT_NEEDED` entry at all.
+- The build **succeeds**. The `.so` appears, and it exports all 61 `Gui*` symbols,
+  so a symbol count looks perfect.
+- But `ldd lib/libraygui.so` shows no raylib, raylib's symbols are left undefined
+  with nothing recording where to find them, and jolt then reports
+  `required native library raygui not found` while pointing at a file that plainly
+  exists.
+
+That error names the wrong thing entirely, which is what makes this expensive to
+diagnose. `apt` has no `libraylib-dev` on Ubuntu 24.04 either (with universe
+enabled the only match is `python3-xraylib`, an X-ray physics library), so a source
+build is the normal path rather than a fallback.
+
+Verified in an `ubuntu:24.04` container: 61 `Gui*` symbols, `ldd` resolving
+`libraylib.so.600`, and `bb check` compiling all 24 example namespaces.
 
 ## Bumping the vendored header
 

@@ -34,8 +34,8 @@
 
     ;; Homebrew's include/lib dirs are not on the compiler's default search
     ;; path, so they are named explicitly. Linux uses the distro's default
-    ;; paths plus whatever pkg-config would report; these flags are written
-    ;; from the macOS ones and are UNTESTED on Linux.
+    ;; paths plus whatever pkg-config would report. Exercised on every push
+    ;; by the Linux job in .github/workflows/ci.yml.
     (defn build-argv
       []
       (if (mac?)
@@ -46,10 +46,20 @@
          "-framework" "CoreVideo" "-framework" "IOKit"
          "-framework" "Cocoa" "-framework" "OpenGL"
          "-o" lib-path (str repo-root "/vendor/raygui_impl.c")]
+        ;; The -l flags MUST come after the translation unit that needs them.
+        ;; GNU ld resolves left to right and Ubuntu defaults to --as-needed, so
+        ;; a -lraylib placed before raygui_impl.c records no DT_NEEDED: the .so
+        ;; links cleanly, exports all 61 Gui* symbols, and has raylib's symbols
+        ;; undefined with nothing saying where to find them. jolt then reports
+        ;; it as "required native library raygui not found", which points at the
+        ;; wrong thing entirely. macOS's linker is order-insensitive, which is
+        ;; why the mac argv above tolerates either order and this one does not.
+        ;; Verified in an ubuntu:24.04 container: with the old order
+        ;; `ldd libraygui.so | grep raylib` was empty and `bb check` failed.
         ["cc" "-O2" "-shared" "-fPIC" "-DBUILD_LIBTYPE_SHARED"
          "-I" (str repo-root "/vendor")
-         "-lraylib" "-lGL" "-lm" "-lpthread" "-ldl" "-lrt" "-lX11"
-         "-o" lib-path (str repo-root "/vendor/raygui_impl.c")]))
+         "-o" lib-path (str repo-root "/vendor/raygui_impl.c")
+         "-lraylib" "-lGL" "-lm" "-lpthread" "-ldl" "-lrt" "-lX11"]))
 
     (defn build-lib!
       []
@@ -62,9 +72,22 @@
                 (println "")
                 (println "libraygui build FAILED.")
                 (println "Most likely cause: raylib's headers are not where the")
-                (println "compiler looked. Check `brew list --versions raylib`,")
-                (println "and if it is installed but the build still cannot find")
-                (println "raylib.h, try `brew link raylib`."))
+                (println "compiler looked.")
+                (if (mac?)
+                  (do
+                    (println "Check `brew list --versions raylib`, and if it is")
+                    (println "installed but the build still cannot find raylib.h,")
+                    (println "try `brew link raylib`."))
+                  (do
+                      ;; Ubuntu has no libraylib-dev at all, verified against
+                      ;; 24.04 with universe enabled: the only match is
+                      ;; python3-xraylib, an unrelated X-ray physics library.
+                      ;; So on Linux the normal fix is a source build, and the
+                      ;; brew advice above would send someone the wrong way.
+                      (println "There is no libraylib-dev package on Ubuntu, so a")
+                      (println "source build is the normal path:")
+                      (println "  https://github.com/raysan5/raylib   cmake -DBUILD_SHARED_LIBS=ON")
+                      (println "Then run `sudo ldconfig` so the linker sees libraylib.so."))))
               (System/exit 1)))))
 
     (defn ensure-lib!
