@@ -27,4 +27,10 @@ raygui_shot.png
 
 # local dev artifacts (not part of the example suite)
 .claude/
+
+# local tooling workspace: scratch notes and generated output, never shipped.
+# Ignored here rather than relying on the .gitignore written inside that
+# directory itself, which lives in an untracked tree and would stop
+# protecting anything if it were removed.
+.superpowers/
 .DS_Store
