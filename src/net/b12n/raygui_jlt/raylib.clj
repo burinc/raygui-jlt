@@ -72,6 +72,8 @@
 (ffi/defcfn draw-rectangle-lines "DrawRectangleLines" [:int :int :int :int :uint] :void)
 (ffi/defcfn draw-line            "DrawLine"           [:int :int :int :int :uint] :void)
 (ffi/defcfn draw-circle          "DrawCircle"         [:int :int :float :uint] :void)
+(ffi/defcfn begin-scissor-mode   "BeginScissorMode"   [:int :int :int :int] :void)
+(ffi/defcfn end-scissor-mode     "EndScissorMode"     [] :void)
 
 ;; --- input -------------------------------------------------------------------
 (ffi/defcfn ^:private key-down-raw      "IsKeyDown"            [:int] :int)

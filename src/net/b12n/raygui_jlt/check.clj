@@ -13,6 +13,7 @@
    [net.b12n.raygui-jlt.basic-controls]
    [net.b12n.raygui-jlt.combo-box]
    [net.b12n.raygui-jlt.dropdown-box]
+   [net.b12n.raygui-jlt.floating-window]
    [net.b12n.raygui-jlt.icon-buttons]
    [net.b12n.raygui-jlt.labels-lines]
    [net.b12n.raygui-jlt.list-view]
@@ -21,12 +22,14 @@
    [net.b12n.raygui-jlt.progress-bar]
    [net.b12n.raygui-jlt.raygui]
    [net.b12n.raygui-jlt.raylib]
+   [net.b12n.raygui-jlt.scroll-panel]
    [net.b12n.raygui-jlt.sliders]
    [net.b12n.raygui-jlt.spinner-value-box]
    [net.b12n.raygui-jlt.tab-bar]
    [net.b12n.raygui-jlt.text-box]
    [net.b12n.raygui-jlt.text-input-box]
-   [net.b12n.raygui-jlt.toggles]))
+   [net.b12n.raygui-jlt.toggles]
+   [net.b12n.raygui-jlt.window-box]))
 
 (defn -main
   [& _]

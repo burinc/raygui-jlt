@@ -854,3 +854,41 @@
            h 120
            text ""}}]
   (gui-group-box (bounds! x y w h) text))
+
+(defn scroll-panel!
+  "GuiScrollPanel. :x :y :w :h :text :content-w :content-h :scroll :view.
+
+  :scroll is a :vector2 cell holding the current offset (raygui writes it) and
+  :view a :rect cell receiving the visible region.
+
+  NOTE the two scratch buffers. This is the ONLY control taking two by-value
+  Rectangles in one call, and Clojure evaluates arguments left to right, so
+  writing both through `bounds!` would let the content rect clobber the bounds
+  rect and hand raygui the same rectangle twice. Measured, when that happens: a
+  panel declared 200x90 renders at its 600x400 content size, covering the
+  window, scrollbars and all, with no error to notice. `content!` writes the
+  second buffer. Do not 'simplify' this to one call."
+  [& {:keys [x y w h text content-w content-h scroll view]
+      :or {x 0
+           y 0
+           w 240
+           h 180
+           text ""
+           content-w 400
+           content-h 400}}]
+  (gui-scroll-panel (bounds! x y w h) text
+                    (content! 0 0 content-w content-h)
+                    (ptr scroll) (ptr view)))
+
+(defn window-box!
+  "GuiWindowBox, a panel with a title bar and a close button. :x :y :w :h :title.
+
+  True on the frame the close button is clicked. There is nothing to close:
+  raygui reports the click and the caller stops drawing it."
+  [& {:keys [x y w h title]
+      :or {x 0
+           y 0
+           w 240
+           h 160
+           title "Window"}}]
+  (pos? (gui-window-box (bounds! x y w h) title)))
