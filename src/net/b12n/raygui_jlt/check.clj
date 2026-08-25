@@ -17,6 +17,7 @@
    [net.b12n.raygui-jlt.labels-lines]
    [net.b12n.raygui-jlt.list-view]
    [net.b12n.raygui-jlt.list-view-ex]
+   [net.b12n.raygui-jlt.panel-group-box]
    [net.b12n.raygui-jlt.progress-bar]
    [net.b12n.raygui-jlt.raygui]
    [net.b12n.raygui-jlt.raylib]

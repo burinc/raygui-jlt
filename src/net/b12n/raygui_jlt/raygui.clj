@@ -824,3 +824,33 @@
            h 28
            text ""}}]
   (gui-tab-bar (bounds! x y w h) text (ptr hscroll) (ptr cell)))
+
+;; --- kwarg API: containers ---------------------------------------------------
+;; Containers in raygui draw a frame and nothing else. They do not clip, do not
+;; own children and do not offset anything drawn inside them: a "container" here
+;; is a rectangle with a caption, and the controls that appear inside it are
+;; simply drawn at coordinates that fall within it. The one exception is
+;; scroll-panel!, which does clip and does offset — see Task 3.7.
+
+(defn panel!
+  "GuiPanel, a framed area with an optional title bar. :x :y :w :h :text."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 200
+           h 120
+           text ""}}]
+  (gui-panel (bounds! x y w h) text))
+
+(defn group-box!
+  "GuiGroupBox, a labelled outline. :x :y :w :h :text.
+
+  Lighter than a panel: an outline with the caption breaking it, no fill and no
+  title bar."
+  [& {:keys [x y w h text]
+      :or {x 0
+           y 0
+           w 200
+           h 120
+           text ""}}]
+  (gui-group-box (bounds! x y w h) text))

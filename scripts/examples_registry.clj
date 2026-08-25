@@ -23,7 +23,8 @@
    ["combo-box" "combo-box" "collections" "a combo box cycling through options"]
    ["list-view" "list-view" "collections" "a scrollable list with an active row"]
    ["list-view-ex" "list-view-ex" "collections" "a list view reporting focus and scroll"]
-   ["tab-bar" "tab-bar" "collections" "tabs with close requests"]])
+   ["tab-bar" "tab-bar" "collections" "tabs with close requests"]
+   ["panel-group-box" "panel-group-box" "containers" "panels and group boxes as containers"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 
