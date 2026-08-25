@@ -1,13 +1,26 @@
 # raygui-jlt Guide
 
-User-facing documentation for `raygui-jlt`: 18 **[raygui](https://github.com/raysan5/raygui)**
+User-facing documentation for `raygui-jlt`: 24 **[raygui](https://github.com/raysan5/raygui)**
 examples written in **[jolt](https://github.com/jolt-lang/jolt)** (native Clojure on
 Chez Scheme, no JVM), calling raygui directly over its C ABI through `jolt.ffi`. No
 wrapper library, no codegen: one shared bindings namespace and a suite of small
 example programs on top of it.
 
-The suite is 18 examples across 4 groups today; a final phase adds 6 more across
-dialogs, color and styling for 24 total. `bb info` always prints the live count.
+The suite is complete: 24 examples across 7 groups. `bb info` always prints the
+live count.
+
+## A few of them
+
+<p>
+<a href="../demos/style-selector.png"><img src="../demos/style-selector.png" width="150"></a>
+<a href="../demos/color-picker.png"><img src="../demos/color-picker.png" width="150"></a>
+<a href="../demos/floating-window.png"><img src="../demos/floating-window.png" width="150"></a>
+<a href="../demos/scroll-panel.png"><img src="../demos/scroll-panel.png" width="150"></a>
+<a href="../demos/icon-buttons.png"><img src="../demos/icon-buttons.png" width="150"></a>
+</p>
+
+Real captures of the running examples, not mockups; see
+[`example-catalog.md`](example-catalog.md) for the full set and how they were taken.
 
 ## Why this exists
 
@@ -37,7 +50,7 @@ never comes up.
 
 ```sh
 bb lib:build        # compile the vendored header into lib/libraygui.{dylib,so}
-bb check             # headless compile of all 18 examples, no window
+bb check             # headless compile of all 24 examples, no window
 bb <example-name>    # run one, e.g. bb basic-controls (opens a window)
 ```
 

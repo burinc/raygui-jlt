@@ -12,10 +12,8 @@ bb examples     # flat list with descriptions, plus the count
 bb info         # the grouped cheat-sheet this page mirrors
 ```
 
-**18 examples across 4 groups today.** The suite is still growing: a further
-6 are planned across dialogs, color and styling, three groups that do not
-have a single example in them yet. Run `bb info` for the count that is
-actually true right now, not this page's memory of it.
+**24 examples across 7 groups.** The suite is complete. Run `bb info` for the
+count that is actually true right now, not this page's memory of it.
 
 ## basics
 
@@ -55,6 +53,27 @@ actually true right now, not this page's memory of it.
 | [<img src="../demos/window-box.png" width="180">](../demos/window-box.png) | `window-box` | `GuiWindowBox`, a panel with a title bar and a close button. Closing it does nothing on raygui's side: there is no window object to destroy and no visibility flag to clear, the control just reports that the close button was clicked and the application stops calling it. Reopening is just calling it again. |
 | [<img src="../demos/floating-window.png" width="180">](../demos/floating-window.png) | `floating-window` | Draggable windows, hand-rolled because raygui has no window manager. The application watches for a press inside a title bar, remembers the grab offset and moves its own coordinates; the window box itself never knows it moved. Two windows also make the draw-order rule concrete, since there is no z-order either: the one drawn last is the one on top, and clicking a window that is behind does not raise it. Port of raygui's own `floating_window` example. |
 
+## dialogs
+
+| preview | `bb` name | what it demonstrates |
+|---|---|---|
+| [<img src="../demos/message-box.png" width="180">](../demos/message-box.png) | `message-box` | `GuiMessageBox`, and what modality does not mean. raygui draws a dialog; it does not block anything behind it. There is no modal loop and no input capture: if the caller keeps drawing the controls underneath, they keep responding. Modality is the caller declining to draw the rest, and the counter behind the dialog keeps running to make that visible. |
+| [<img src="../demos/custom-input-box.png" width="180">](../demos/custom-input-box.png) | `custom-input-box` | A dialog raygui does not ship, built from the controls it does. `GuiTextInputBox` is one fixed arrangement: title, message, entry, buttons. When that is not the arrangement wanted, there is nothing to subclass and nothing to configure, only a panel with controls placed on it, which is all `GuiTextInputBox` is doing internally. This one takes two fields rather than one, which the built-in cannot do at all. Port of raygui's own `custom_input_box` example. |
+
+## color
+
+| preview | `bb` name | what it demonstrates |
+|---|---|---|
+| [<img src="../demos/color-picker.png" width="180">](../demos/color-picker.png) | `color-picker` | `GuiColorPicker`, plus the separate panel and bars it is assembled from. Worth knowing which encoding is in play: a `:color` cell holds a raylib `Color`, already packed `0xAABBGGRR`, so a picked colour goes straight into a drawing call with no conversion, while a colour read from `GuiGetStyle` is raygui's `0xRRGGBBAA` and must go through `style-color` first. Only the style side needs converting. Its return value is also not a reliable change signal: `GuiColorPicker`'s hue bar unconditionally overwrites the square's result rather than OR-ing with it, so this example reads the cell instead of the return. |
+| [<img src="../demos/color-picker-hsv.png" width="180">](../demos/color-picker-hsv.png) | `color-picker-hsv` | The HSV picker, and why raygui ships a second one. It looks like `GuiColorPicker`; it differs in what it stores. The RGB picker keeps a `Color`, so hue and saturation are re-derived from RGB every frame, and at zero saturation or zero value there is no hue left to derive: drag a colour down to black and its hue is gone when dragged back up. The HSV picker keeps h, s and v in a `:vector3` cell instead, so hue survives, and the readout below shows the cell directly, where the difference is visible. |
+
+## styling
+
+| preview | `bb` name | what it demonstrates |
+|---|---|---|
+| [<img src="../demos/style-selector.png" width="180">](../demos/style-selector.png) | `style-selector` | Cycling the six vendored `.rgs` themes. A `.rgs` file carries the whole appearance: colours, metrics and an embedded font, and loading one replaces raygui's global style, so every control drawn afterwards changes at once, including this example's own controls. The style is loaded from memory rather than by path, since `GuiLoadStyle` resolves its argument against the process working directory. Every colour on screen comes from `style-color`, which routes through raylib's `GetColor`, the same 0xRRGGBBAA-versus-0xAABBGGRR swap `what-the-gates-do-not-catch.md` measures elsewhere. Port of raygui's own `style_selector` example. |
+| [<img src="../demos/gui-state.png" width="180">](../demos/gui-state.png) | `gui-state` | The global state API, and the discipline it needs. `GuiSetState`, `GuiSetAlpha` and `GuiLock` are all global and persistent: they apply to every control drawn afterwards until something sets them back, with no scope and no stack. Forgetting to restore one is the characteristic raygui bug, since the affected controls still draw, just wrong. Every block in this example sets its value back immediately. The bottom row is genuinely locked via `GuiLock`: click it and nothing happens. |
+
 ## What the previews are
 
 Every preview is a real capture of the example actually running, not a
@@ -75,19 +94,12 @@ being pressed, a dropdown opening, or a slider being dragged. A still frame
 does not claim more than it shows, which is the honest version of a preview
 here.
 
-## Not yet built
-
-A further 6 examples are planned, spread across three groups this project
-does not have a single example in yet: dialogs, color and styling. None of
-the six exist in the repo today, so they are not in the tables above. This
-page lists what `bb info` actually reports, not what a plan promises.
-
 ## Ports of raygui's own examples
 
 Four examples are direct ports of programs in raygui's own `examples/` tree:
-`scroll-panel` and `floating-window`, both built and in the tables above,
-plus `custom-input-box` and `style-selector`, both still planned. `NOTICE`
-carries the attribution for all four.
+`scroll-panel`, `floating-window`, `custom-input-box` and `style-selector`,
+all built and in the tables above. `NOTICE` carries the attribution for all
+four.
 
 ## Adding an example
 

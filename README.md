@@ -1,6 +1,6 @@
 # raygui-jlt
 
-18 [raygui](https://github.com/raysan5/raygui) examples written in
+24 [raygui](https://github.com/raysan5/raygui) examples written in
 [jolt](https://github.com/jolt-lang/jolt) (native Clojure on Chez Scheme, no JVM),
 calling raygui directly over its C ABI through `jolt.ffi`. No wrapper library, no
 codegen: one shared bindings namespace and a suite of small example programs on top
@@ -28,10 +28,9 @@ library to load.
 
 ## The examples
 
-The suite is **18 examples across 4 groups today, with 6 more planned** across
-dialogs, color and styling. This table is generated from `bb info`, so it can't
-drift from the registry; run `bb info` yourself for the live, grouped version, or
-`bb examples` for a flat list.
+The suite is **24 examples across 7 groups**. This table is generated from `bb info`,
+so it can't drift from the registry; run `bb info` yourself for the live, grouped
+version, or `bb examples` for a flat list.
 
 | Group | Task | What it shows |
 |---|---|---|
@@ -53,9 +52,14 @@ drift from the registry; run `bb info` yourself for the live, grouped version, o
 | containers | `bb scroll-panel` | a scroll panel over oversized content |
 | containers | `bb window-box` | a window box you can close and reopen |
 | containers | `bb floating-window` | two draggable floating windows |
+| dialogs | `bb message-box` | a modal message box with two buttons |
+| dialogs | `bb custom-input-box` | a hand-built input dialog over a panel |
+| color | `bb color-picker` | an RGB picker with an alpha bar |
+| color | `bb color-picker-hsv` | the HSV picker and panel |
+| styling | `bb style-selector` | cycle six vendored .rgs style themes |
+| styling | `bb gui-state` | forced states, alpha and lock |
 
-This is a suite in progress, not a finished port; treat the count above as current
-state, not a promise of completeness.
+The suite is complete: all 24 planned examples are built.
 
 ## How it works
 

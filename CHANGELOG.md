@@ -9,12 +9,11 @@ Examples read at <https://raygui-jlt.b12n.app>.
 
 ## 0.1.0 - Unreleased
 
-The suite is 18 of a planned 24 examples. It is not complete yet; treat
-everything below as the state of an in-progress port, not a finished release.
+The suite is complete: 24 examples across 7 groups.
 
 - [raygui](https://github.com/raysan5/raygui), raylib's immediate-mode GUI
   library, ported to [jolt](https://github.com/jolt-lang/jolt), a native
-  Clojure on Chez Scheme with no JVM: 18 example programs calling raygui
+  Clojure on Chez Scheme with no JVM: 24 example programs calling raygui
   directly over its C ABI through `jolt.ffi`, no wrapper library, no codegen.
 - **raygui is header-only, so this repo builds its own library.** There is
   no `libraygui` to install and no Homebrew formula for it. `vendor/raygui.h`

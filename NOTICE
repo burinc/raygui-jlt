@@ -20,12 +20,11 @@ raygui
   compiles it into lib/libraygui.dylib. Vendoring the header is what pins
   the version and makes that build reproducible.
 
-  Two examples in src/net/b12n/raygui_jlt/ are Clojure ports of raygui's own
-  example programs: scroll-panel and floating-window. Those are likewise
-  zlib/libpng licensed, and this project is released under the same license
-  so that the original terms carry through. Two further ports, of raygui's
-  custom_input_box and style_selector examples, are planned but not yet
-  built.
+  Four examples in src/net/b12n/raygui_jlt/ are Clojure ports of raygui's own
+  example programs: scroll-panel, floating-window, custom-input-box and
+  style-selector. Those are likewise zlib/libpng licensed, and this project
+  is released under the same license so that the original terms carry
+  through.
 
 raylib
 ------

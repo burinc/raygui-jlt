@@ -59,7 +59,7 @@ before each control call:
 
 The consequence is the point, not a micro-optimisation: **no example allocates or
 frees a `Rectangle` inside a frame**, which removes an entire class of FFI lifetime
-bugs from all 18 (soon 24) example programs. The only lifetimes an example manages
+bugs from all 24 example programs. The only lifetimes an example manages
 are its cells, below.
 
 ## The second buffer, for `GuiScrollPanel`
