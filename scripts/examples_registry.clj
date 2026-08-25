@@ -19,7 +19,8 @@
    ["spinner-value-box" "spinner-value-box" "inputs" "spinner and value box, clamped and typed"]
    ["sliders" "sliders" "inputs" "slider, slider bar and their value cells"]
    ["progress-bar" "progress-bar" "inputs" "a progress bar driven by a timer"]
-   ["dropdown-box" "dropdown-box" "collections" "a dropdown that owns its edit mode"]])
+   ["dropdown-box" "dropdown-box" "collections" "a dropdown that owns its edit mode"]
+   ["combo-box" "combo-box" "collections" "a combo box cycling through options"]])
 
 (def groups ["basics" "inputs" "collections" "containers" "dialogs" "color" "styling"])
 

@@ -759,3 +759,17 @@
            text "ONE;TWO;THREE"
            edit? false}}]
   (pos? (gui-dropdown-box (bounds! x y w h) text (ptr cell) (if edit? 1 0))))
+
+(defn combo-box!
+  "GuiComboBox. :x :y :w :h :text :cell (an :int cell).
+
+  Unlike the dropdown this never opens a list: clicking cycles to the next
+  option in place, so it has no edit mode and needs no draw-order care. True on
+  change."
+  [& {:keys [x y w h text cell]
+      :or {x 0
+           y 0
+           w 160
+           h 30
+           text "ONE;TWO;THREE"}}]
+  (pos? (gui-combo-box (bounds! x y w h) text (ptr cell))))
