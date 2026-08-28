@@ -2,6 +2,9 @@
 ;;
 ;;   bb lib:build       compile vendor/raygui.h -> lib/libraygui.dylib
 ;;   bb lib:check       is raylib installed? is libraygui built?
+;;   bb check           headless compile-check of every example
+;;   bb aot             build one example as a native binary and run it
+;;                      (needs a display; see the task's own comment)
 ;;
 ;; Quality: bb lint | lint:strict, bb lsp:format | lsp:format-check,
 ;; bb lsp:clean-ns | lsp:clean-ns-check, bb lsp:diagnostics, bb lsp:check
@@ -152,6 +155,44 @@
   check
   {:doc "Headless compile-check of every example (no window)"
    :task (do (ensure-lib!) (shell "jolt" "-M:check"))}
+
+  aot
+  {:doc "Build one example as a native binary and RUN it -- the AOT gate"
+   ;; Everything else here runs under `jolt run`, which cannot see a bug that
+   ;; exists only in a built image. jolt#757 was exactly that: jolt.ffi's own
+   ;; defns were interned but UNBOUND in a `jolt build` image while `jolt run`
+   ;; compiled them from source and worked. Fixed by jolt#756.
+   ;;
+   ;; This repo sits directly on that surface, which is why the gate is worth
+   ;; more here than in the sibling projects. raygui.clj calls `ffi/layout-size`
+   ;; inside two top-level `def`s, so an affected jolt would fail at namespace
+   ;; load rather than at some rarely-taken branch, and `rect->` writes all four
+   ;; Rectangle fields with `ffi/write-field` on the path every Gui* control
+   ;; takes. basic-controls is built rather than the headless `check` entry
+   ;; point for that reason: `check` only requires namespaces, so it would
+   ;; never call the accessors and would pass while broken.
+   ;;
+   ;; It runs from the REPO ROOT, not a temp directory. deps.edn declares
+   ;; raygui at the repo-relative `lib/libraygui.dylib`, so a built binary is
+   ;; not relocatable -- moving it elsewhere fails with
+   ;; `required native library not found ("lib/libraygui.dylib")` and exit 255.
+   ;; Verified, 2026-08-28. Do not "fix" this into a temp dir without first
+   ;; making that path absolute.
+   ;;
+   ;; NOT wired into `bb check` and NOT in ci.yml, both on purpose. `bb check`
+   ;; promises to be headless and CI runs it with no display, while this opens
+   ;; a real window. CI also pins JOLT_VERSION v0.7.25, which predates the
+   ;; jolt#756 fix and has not been tested for this.
+   :task
+   (do
+     (ensure-lib!)
+     (let [ex  "basic-controls"
+           bin (str (fs/path (fs/create-temp-dir) "raygui-jlt-aot"))]
+       (println (str "  building " ex))
+       (shell "jolt" "build" "-m" (str "net.b12n.raygui-jlt." ex) "-o" bin)
+       (println (str "\n  running it for 800ms from " repo-root))
+       (shell {:dir repo-root :extra-env {"RAYGUI_APP_AUTO_QUIT_MS" "800"}} bin)
+       (println "\naot: the native binary built and ran")))}
 
   examples
   {:doc "Flat list of every example with its description"

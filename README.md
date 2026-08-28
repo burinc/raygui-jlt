@@ -161,6 +161,32 @@ loads, not that it renders correctly; several traps documented in the guide rend
 plausible, wrong result rather than throwing. Looking at the screenshot is what
 actually catches them.
 
+## The AOT gate
+
+`bb check` and every example run under `jolt run`, which cannot see a bug that
+exists only in a built binary. jolt#757 was one of those: `jolt.ffi`'s own
+`defn`s were interned but unbound in a `jolt build` image while `jolt run`
+compiled them from source and worked. It is fixed now (jolt#756), and this repo
+sits directly on the surface it broke, because `raygui.clj` calls
+`ffi/layout-size` inside two top-level `def`s and `rect->` writes all four
+Rectangle fields with `ffi/write-field`, which is the path every `Gui*` control
+takes.
+
+```sh
+bb aot        # build basic-controls as a native binary, run it for 800ms
+```
+
+It builds a real example rather than the headless `check` entry point on
+purpose. `check` only requires namespaces, so it would never call an accessor,
+and it would pass while the binary was broken.
+
+Two things it deliberately does not do. It runs from the repo root rather than a
+temp directory, because `deps.edn` declares raygui at the repo-relative
+`lib/libraygui.dylib`, which means a built binary is **not relocatable**: run it
+anywhere else and it exits 255 with `required native library not found`. It is
+also not part of `bb check` or CI, since it opens a real window and both of
+those are headless.
+
 ## Documentation
 
 - Guide: [`docs/guide/`](docs/guide/index.md), starting with
