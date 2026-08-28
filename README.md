@@ -1,5 +1,7 @@
 # raygui-jlt
 
+[![CI](https://github.com/burinc/raygui-jlt/actions/workflows/ci.yml/badge.svg)](https://github.com/burinc/raygui-jlt/actions/workflows/ci.yml)
+
 24 [raygui](https://github.com/raysan5/raygui) examples written in
 [jolt](https://github.com/jolt-lang/jolt) (native Clojure on Chez Scheme, no JVM),
 calling raygui directly over its C ABI through `jolt.ffi`. No wrapper library, no
