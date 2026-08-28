@@ -1,0 +1,119 @@
+name: Bug report
+description: An example crashes, renders wrong, or will not compile
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Most failures here are one of four things: raylib not where Chez looks
+        for it, libraygui not built, libraygui linked against its own private
+        copy of raylib, or a jolt older than this suite needs.
+
+        **Please check these first, all four are known and explained:**
+
+        - **`required native library not found`.** raygui is header-only and
+          this repo builds its own library from the vendored header. Run
+          `bb lib:check` first, it says whether raylib is installed and
+          whether `lib/libraygui` exists, then `bb lib:build`.
+        - **Every control is inert, and nothing raises.** raygui calls
+          raylib's input and drawing functions internally, and it must reach
+          the *same* libraylib jolt loaded. Linked statically it gets a
+          private copy of raylib's globals, so every control reads a mouse
+          that never moves. Nothing errors, and the examples still compile and
+          exit fine. `otool -L lib/libraygui.dylib` on macOS, or
+          `ldd lib/libraygui.so` on Linux, must show libraylib.
+        - **You ran an example from somewhere other than the repo root.**
+          `deps.edn` declares raygui at the repo-relative
+          `lib/libraygui.dylib`, so a binary or a command run elsewhere fails
+          with `required native library not found`. Every `bb` task runs from
+          the root.
+        - **Your jolt is older than v0.7.23.** That is where
+          `[:by-value [:struct ...]]` landed, which every Rectangle-taking
+          binding depends on. CI pins v0.7.25.
+
+  - type: input
+    id: example
+    attributes:
+      label: Which example?
+      description: The `bb` name, for instance `bb sliders`. Say "all of them" if it is the build.
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+      description: |
+        Paste the full error if there is one. If it renders wrong rather than
+        failing, a screenshot is worth more than a description:
+        `RAYGUI_APP_AUTO_QUIT_MS=1500 RAYGUI_APP_SHOT=proof.png jolt -M:<alias>`.
+        Keep that path relative, raylib prepends the working directory and an
+        absolute path silently writes nothing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please paste the output of these commands.
+      value: |
+        ```
+        $ uname -sm
+        (paste here, OS and CPU architecture)
+
+        $ jolt --version
+        (paste here)
+
+        $ bb --version
+        (paste here)
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: library
+    attributes:
+      label: Library state
+      description: |
+        `bb lib:check` reports whether raylib and libraygui are both present.
+        The linkage line is the one that distinguishes "library missing" from
+        "library present but every control is inert", which look identical
+        from a compile error alone.
+      value: |
+        ```
+        $ bb lib:check
+        (paste here)
+
+        $ otool -L lib/libraygui.dylib     # macOS
+        $ ldd lib/libraygui.so             # Linux
+        (paste here, the libraylib line matters most)
+        ```
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: CI covers macOS and Ubuntu. Anything else is new ground rather than a regression.
+      options:
+        - "macOS, Apple silicon"
+        - "macOS, Intel"
+        - "Linux, x86-64"
+        - "Something else"
+    validations:
+      required: true
+
+  - type: textarea
+    id: gates
+    attributes:
+      label: Do the gates pass?
+      value: |
+        ```
+        $ bb check:registration
+        (paste here)
+
+        $ bb check
+        (paste the last few lines)
+        ```

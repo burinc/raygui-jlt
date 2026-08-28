@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://raygui-jlt.b12n.app
+    about: The guide pages, the example catalog, and what the gates do not catch.
+  - name: jolt
+    url: https://github.com/jolt-lang/jolt
+    about: A compiler or jolt.ffi problem that reproduces without raygui belongs there.
+  - name: raygui itself
+    url: https://github.com/raysan5/raygui
+    about: A control that behaves the same way in C belongs upstream, not here.

@@ -1,0 +1,101 @@
+name: New example proposal
+description: Suggest a raygui control or technique worth its own example
+labels: [example]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        All 24 examples in the registry are written, so this is about growing
+        the suite rather than filling a gap. `bb info` lists what is there now,
+        grouped, and the [catalog](https://raygui-jlt.b12n.app) has a longer
+        note on each.
+
+        Two things shape what fits:
+
+        - **The sibling suite.** [`raygui-jnk`](https://github.com/burinc/raygui-jnk)
+          carries the same 24 names and the same descriptions on purpose, so
+          the two ports read as one library seen through two Clojure
+          implementations. A new example is nicer if it can land in both.
+        - **Nearly everything is already bound.** 59 of the vendored header's
+          61 `RAYGUIAPI` functions have `jolt.ffi` bindings. Only `GuiSetFont`
+          and `GuiGetFont` do not, so an example needing custom fonts needs
+          binding work first.
+
+        Adding an example is otherwise deliberately mechanical, and
+        `bb check:registration` will tell you if you missed one of the five
+        places. See
+        [CONTRIBUTING.md](https://github.com/burinc/raygui-jlt/blob/main/CONTRIBUTING.md#adding-an-example-the-five-touchpoints),
+        and feel free to open a PR directly instead of an issue.
+
+  - type: input
+    id: name
+    attributes:
+      label: Proposed name
+      description: The `bb` name, lowercase and hyphenated, for instance `grid-snapping`.
+    validations:
+      required: true
+
+  - type: input
+    id: description
+    attributes:
+      label: One-line description
+      description: |
+        This becomes the registry description, the `bb.edn` task `:doc` and the
+        gallery caption, so it is capped at 49 characters and `bb examples`
+        enforces that.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: group
+    attributes:
+      label: Which group?
+      options:
+        - basics
+        - inputs
+        - collections
+        - containers
+        - dialogs
+        - color
+        - styling
+        - "A new group"
+    validations:
+      required: true
+
+  - type: textarea
+    id: demonstrates
+    attributes:
+      label: What would it show that the existing 24 do not?
+      description: |
+        A raygui control, a combination of them, a styling technique, or a
+        `jolt.ffi` shape worth having written down somewhere.
+    validations:
+      required: true
+
+  - type: textarea
+    id: bindings
+    attributes:
+      label: Does it need anything new from the bindings?
+      description: |
+        Say so if it needs `GuiSetFont` or `GuiGetFont`, or a raygui call
+        whose struct handling is not already covered. Passing structs by value
+        needs `[:by-value [:struct ...]]`, which landed in jolt v0.7.23.
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: What would its screenshot prove?
+      description: |
+        The PNG is this project's real gate, and a screenshot that cannot fail
+        is not worth much. This repo has shipped examples that compiled, linted
+        and formatted cleanly while rendering a plausible wrong result: a
+        scroll panel filling the window instead of clipping, a colour with red
+        and blue swapped, a dialog whose Cancel and OK did each other's job.
+        The good examples cross-check their own state on screen.
+
+  - type: checkboxes
+    id: offer
+    attributes:
+      label: Are you offering to write it?
+      options:
+        - label: Yes, I would like to open the PR
