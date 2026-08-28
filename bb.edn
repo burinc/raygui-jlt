@@ -3,6 +3,7 @@
 ;;   bb lib:build       compile vendor/raygui.h -> lib/libraygui.dylib
 ;;   bb lib:check       is raylib installed? is libraygui built?
 ;;   bb check           headless compile-check of every example
+;;   bb check:registration  source, deps.edn alias and check.clj require
 ;;   bb aot             build one example as a native binary and run it
 ;;                      (needs a display; see the task's own comment)
 ;;
@@ -101,6 +102,7 @@
 
     (require '[examples-registry :as reg])
     (require '[readme-table :as rt])
+    (require '[registration :as regi])
 
     (def by-name
       (into {} (map (fn [r] [(nth r 0) r]) reg/examples)))
@@ -155,6 +157,29 @@
   check
   {:doc "Headless compile-check of every example (no window)"
    :task (do (ensure-lib!) (shell "jolt" "-M:check"))}
+
+  check:registration
+  {:doc "Source, deps.edn alias and check.clj require agree with the registry"
+   ;; The gate `check` cannot be for itself, and touchpoint 3 is why.
+   ;;
+   ;; `bb check` compiles what check.clj requires. An example left out of that
+   ;; list is never compiled, and the run still prints "all example namespaces
+   ;; compiled OK" and exits 0. Measured 2026-08-29: a namespace carrying a
+   ;; deliberate unresolved symbol fails `bb check` with its require present,
+   ;; and passes with the require removed. So the compile gate goes green over
+   ;; code it never read, which is the failure this task exists to catch.
+   ;;
+   ;; Needs no jolt, no raylib and no libraygui, so it runs anywhere and in
+   ;; well under a second.
+   :task
+   (let [probs (regi/problems repo-root reg/examples)]
+     (if (seq probs)
+       (binding [*out* *err*]
+         (println "registration gaps:")
+         (doseq [[n what] probs] (println (str "  " n ": " what)))
+         (System/exit 1))
+       (println (str "registration ok, " (count reg/examples)
+                     " examples across source, deps.edn alias and check.clj"))))}
 
   aot
   {:doc "Build one example as a native binary and RUN it -- the AOT gate"
@@ -644,6 +669,7 @@
            (str "#!/bin/sh\n"
                 "set -e\n"
                 "# raygui-jlt pre-commit (FAST). Full (+ bb check): bb hooks:install:full\n"
+                "bb check:registration\n"
                 "bb lint:strict\n"
                 "bb lsp:format-check\n"
                 "bb lsp:clean-ns-check\n"))
@@ -658,6 +684,7 @@
            (str "#!/bin/sh\n"
                 "set -e\n"
                 "# raygui-jlt pre-commit (FULL). Fast: bb hooks:install\n"
+                "bb check:registration\n"
                 "bb lint:strict\n"
                 "bb lsp:format-check\n"
                 "bb lsp:clean-ns-check\n"

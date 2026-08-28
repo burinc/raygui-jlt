@@ -12,9 +12,14 @@ name: CI
 # documented as UNTESTED; this workflow is the first thing that actually
 # exercises them, which is the point of running it there.
 #
-# The gate that matters most is "Compile every example": it is the only check
-# that catches a new example missing its `check.clj` require, the easiest of
-# the five touchpoints to skip (see CONTRIBUTING.md).
+# "Compile every example" is the heaviest gate, but it is NOT the one that
+# catches a new example missing its `check.clj` require, which CONTRIBUTING.md
+# calls the easiest of the five touchpoints to skip. It structurally cannot
+# be: `bb check` compiles what check.clj requires, so an unregistered example
+# is never compiled and the run still prints success. Measured 2026-08-29, a
+# namespace with a deliberate unresolved symbol fails `bb check` with its
+# require present and passes with it removed. `bb check:registration` is the
+# gate for that, and it needs no toolchain at all.
 # ---------------------------------------------------------------------------
 
 on:
@@ -194,8 +199,16 @@ jobs:
           fi
           echo "raylib linkage: $linkage"
 
-      # The gate that matters most: compiles all 24 example namespaces
-      # headlessly, no window and no display required.
+      # Guards what the compile step below cannot see. Reads the registry
+      # against the source files, the deps.edn aliases and check.clj's
+      # :require, so an example registered in some places but not all of them
+      # fails here rather than passing silently. Needs no jolt, no raylib and
+      # no libraygui.
+      - name: Registration touchpoints
+        run: bb check:registration
+
+      # The heaviest gate: compiles all 24 example namespaces headlessly, no
+      # window and no display required.
       #
       # Failure output is echoed normally AND re-emitted as an ::error::
       # annotation plus a job summary, because annotations and summaries are

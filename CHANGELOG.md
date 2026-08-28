@@ -29,10 +29,19 @@ The suite is complete: 24 examples across 7 groups.
   carrying only the window, frame, input, colour and text surface these
   examples need to host raygui.
 - **The gates**: `bb check` (headless compile of every example, no window),
-  `bb lint`, `bb examples` (which also enforces a 49-character description
-  cap and a registry/`bb.edn` `:doc` drift check), a pre-commit hook running
-  lint plus format plus clean-ns, and a per-example screenshot, the one gate
-  that catches what the other four cannot.
+  `bb check:registration`, `bb lint`, `bb examples` (which also enforces a
+  49-character description cap and a registry/`bb.edn` `:doc` drift check), a
+  pre-commit hook running those plus format and clean-ns, and a per-example
+  screenshot, the one gate that catches what the others cannot.
+- **`bb check:registration` closes the trap `bb check` cannot.** An example
+  missing from `check.clj`'s `:require` is never compiled, and `bb check`
+  still prints "all example namespaces compiled OK" and exits 0, so a broken
+  example could sit in the repo passing every gate. Measured: a namespace
+  carrying a deliberate unresolved symbol fails `bb check` with its require
+  present and passes with it removed. The new task reads the registry against
+  the source files, the `deps.edn` aliases and `check.clj`, needs no
+  toolchain, and also reports an alias pointing at the wrong namespace and a
+  source file with no registry row. CI runs it before the compile gate.
 - **Four measured traps, documented so the next reader inherits them instead
   of re-finding them:**
   1. `TakeScreenshot` without a prior `rlDrawRenderBatchActive` writes a

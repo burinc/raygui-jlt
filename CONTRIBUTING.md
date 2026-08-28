@@ -30,7 +30,10 @@ silent, not a build error:
 3. **`check.clj` require**: add it alphabetically. **This one is the trap.** A
    missing `check.clj` require does not fail loudly: `bb check` simply never
    compiles your new namespace, so a broken example can sit in the repo passing
-   every gate that runs.
+   every gate that runs. `bb check:registration` exists for exactly this, and
+   CI runs it, but why it had to be a separate task is worth knowing: `bb check`
+   cannot catch this on its own, because what it would have to notice is the
+   thing it never loaded.
 4. **Registry row**: `["<name>" "<alias>" "<group>" "<desc>"]` in
    `scripts/examples_registry.clj`, the single source of truth `bb info`,
    `bb examples` and the example catalog page are all generated from.
@@ -45,13 +48,21 @@ after touching either one.
 ## Before you open a PR
 
 ```sh
+bb check:registration  # all five touchpoints present and agreeing
 bb check              # headless compile-check of every example (no window opens)
 bb lint                # clj-kondo over src
 bb lsp:format-check    # clojure-lsp formatting, dry run
 ```
 
-`bb hooks:install` sets up a local pre-commit hook that runs lint, format and
-clean-ns checks (~2s). It's never committed, so each clone opts in.
+`bb check:registration` needs no jolt, no raylib and no libraygui, so it runs
+on a bare checkout in well under a second. It also catches a `deps.edn` alias
+copy-pasted from its neighbour and left pointing at the wrong namespace, which
+runs the wrong example rather than failing.
+
+`bb hooks:install` sets up a local pre-commit hook that runs registration,
+lint, format and clean-ns checks (~2s). It's never committed, so each clone
+opts in. If you installed the hook before the registration check existed,
+re-run the task: the file is written once rather than updated.
 
 **None of the above is the real gate.** They prove your example compiles, is
 linted and is formatted; they prove nothing about whether it renders correctly.
