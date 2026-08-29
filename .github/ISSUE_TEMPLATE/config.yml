@@ -1,7 +1,7 @@
 blank_issues_enabled: true
 contact_links:
   - name: Documentation
-    url: https://raygui-jlt.b12n.app
+    url: https://jlt-commons.github.io/raygui-jlt/
     about: The guide pages, the example catalog, and what the gates do not catch.
   - name: jolt
     url: https://github.com/jolt-lang/jolt

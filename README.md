@@ -1,6 +1,7 @@
 # raygui-jlt
 
-[![CI](https://github.com/burinc/raygui-jlt/actions/workflows/ci.yml/badge.svg)](https://github.com/burinc/raygui-jlt/actions/workflows/ci.yml)
+[![CI](https://github.com/jlt-commons/raygui-jlt/actions/workflows/ci.yml/badge.svg)](https://github.com/jlt-commons/raygui-jlt/actions/workflows/ci.yml)
+[![Site](https://github.com/jlt-commons/raygui-jlt/actions/workflows/site.yml/badge.svg)](https://github.com/jlt-commons/raygui-jlt/actions/workflows/site.yml)
 
 24 [raygui](https://github.com/raysan5/raygui) examples written in
 [jolt](https://github.com/jolt-lang/jolt) (native Clojure on Chez Scheme, no JVM),
@@ -32,7 +33,7 @@ library to load.
 
 The suite is **24 examples across 7 groups**, every one with a committed
 screenshot. Click any preview for the full-size image, or browse them on the
-[documentation site](https://raygui-jlt.b12n.app).
+[documentation site](https://jlt-commons.github.io/raygui-jlt/).
 
 The gallery below is generated from the registry by `bb readme:examples`, so it
 cannot drift: `bb readme:examples-check` fails if it is stale or if any example
@@ -193,7 +194,7 @@ those are headless.
 
 - Guide: [`docs/guide/`](docs/guide/index.md), starting with
   [`index.md`](docs/guide/index.md).
-- Site: <https://raygui-jlt.b12n.app>, the same content published and cross-linked.
+- Site: <https://jlt-commons.github.io/raygui-jlt/>, the same content published and cross-linked.
 
 ## License and attribution
 
