@@ -1,0 +1,120 @@
+name: Site
+
+# Builds the documentation site on every pull request, and publishes it to
+# GitHub Pages from main. The generator lives in jlt-commons/docs-engine;
+# this repo owns its content, its config in docs/site.edn, and its homepage
+# template.
+#
+# The engine is pinned to a tag rather than tracking its main branch, so a
+# change over there cannot break these docs without someone choosing it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Deploys must not race, and a half-applied Pages deployment is worse than
+# a slightly stale one, so main is never cancelled. Pull request builds are
+# scoped per ref and cancel their own earlier runs, so a third queued run
+# cannot supersede a second one and show a contributor a cancelled check.
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  DOCS_ENGINE_REF: v0.2.0
+  BASE_PATH: /raygui-jlt
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check out the docs engine
+        uses: actions/checkout@v7
+        with:
+          repository: jlt-commons/docs-engine
+          ref: ${{ env.DOCS_ENGINE_REF }}
+          path: .docs-engine
+
+      - name: Install babashka
+        uses: DeLaGuardo/setup-clojure@13.6.1
+        with:
+          bb: latest
+
+      - name: Build
+        working-directory: .docs-engine
+        run: bb build "$GITHUB_WORKSPACE"
+
+      # Everything below has failed in this project's history, in one form or
+      # another, and each check names the symptom a reader would otherwise
+      # have to diagnose from a rendered page.
+      - name: Check the build
+        run: |
+          set -euo pipefail
+          out=_site
+
+          test -f "$out/index.html"       || { echo "no homepage generated"; exit 1; }
+          test -f "$out/guide/index.html" || { echo "no guide page generated"; exit 1; }
+          test -f "$out/css/screen.css"   || { echo "static assets missing"; exit 1; }
+
+          # The gallery is the point of this site. A missing asset dir is a
+          # warning inside the engine, deliberately, so it has to be an error
+          # here or the docs publish with every image broken.
+          shots=$(find "$out/demos" -type f 2>/dev/null | wc -l | tr -d ' ')
+          source_shots=$(find docs/demos -type f | wc -l | tr -d ' ')
+          test "$shots" = "$source_shots" \
+            || { echo "copied $shots demo images, expected $source_shots"; exit 1; }
+
+          ! grep -rq '{{site-base}}' "$out"/index.html "$out"/guide/*.html \
+            || { echo "unrendered template variable"; exit 1; }
+
+          # The only diagram on this site is on the homepage, which is a
+          # hand-written template rather than a markdown fence. Engine v0.2.0
+          # detects that from the template's own source. Both directions fail
+          # quietly: a diagram page that drops the bundle renders unstyled
+          # source text, and a page without one that loads it costs every
+          # reader 3.4 MB for nothing.
+          grep -q 'pre class="mermaid"' "$out/index.html" \
+            || { echo "the homepage diagram is missing"; exit 1; }
+          grep -q 'mermaid.min.js' "$out/index.html" \
+            || { echo "the homepage has a diagram but is not loading mermaid"; exit 1; }
+          ! grep -q 'mermaid.min.js' "$out/guide/index.html" \
+            || { echo "a page with no diagram is loading mermaid"; exit 1; }
+
+          # The failure mode this site's base path exists to prevent. Served at
+          # jlt-commons.github.io/raygui-jlt/, a root-absolute URL loads the
+          # ORGANIZATION site's asset instead of this project's. The page still
+          # renders, wearing the wrong clothes, so nothing but a check catches it.
+          if grep -ohE '(href|src)="/[^"]*"' "$out"/index.html "$out"/404.html "$out"/guide/*.html \
+               | grep -vE "=\"$BASE_PATH/"; then
+            echo "the URLs above escape $BASE_PATH and would resolve against the org site"
+            exit 1
+          fi
+
+          echo "build looks correct: $shots demo images, every URL under $BASE_PATH"
+
+      - name: Upload the Pages artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

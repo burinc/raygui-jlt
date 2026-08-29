@@ -5,7 +5,19 @@ Notable changes to raygui-jlt, newest first. The format follows
 one bullet per user-visible change, written as what a reader would notice
 rather than what a commit did.
 
-Examples read at <https://raygui-jlt.b12n.app>.
+Examples read at <https://jlt-commons.github.io/raygui-jlt/>.
+
+## Unreleased
+
+- **The project moved to the jlt-commons organization**, from `burinc/raygui-jlt`
+  to `jlt-commons/raygui-jlt`. GitHub redirects the old URLs, so existing clones
+  and links keep working.
+- **The documentation site moved with it**, to
+  <https://jlt-commons.github.io/raygui-jlt/>, built by the shared
+  jlt-commons/docs-engine and published by this repo's own CI. `bb docs-sync` is
+  gone, along with the S3 upload, the CloudFront invalidation and the wiki mirror
+  it drove. A docs change is now live on merge, and a contributor can see their
+  own change rendered before it lands. Preview locally with `bb site:serve`.
 
 ## 0.1.0 - Unreleased
 

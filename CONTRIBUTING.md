@@ -6,7 +6,7 @@ Scheme, no JVM), calling raygui directly over its C ABI through `jolt.ffi`.
 
 New examples are welcome; the suite is deliberately mechanical to grow.
 
-The documentation is published at <https://raygui-jlt.b12n.app>. It's generated from
+The documentation is published at <https://jlt-commons.github.io/raygui-jlt/>. It's generated from
 this repo's `docs/guide/`; edit the Markdown here, never the site.
 
 ## Setting up

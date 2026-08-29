@@ -7,7 +7,7 @@ body:
       value: |
         All 24 examples in the registry are written, so this is about growing
         the suite rather than filling a gap. `bb info` lists what is there now,
-        grouped, and the [catalog](https://raygui-jlt.b12n.app) has a longer
+        grouped, and the [catalog](https://jlt-commons.github.io/raygui-jlt/) has a longer
         note on each.
 
         Two things shape what fits:
@@ -24,7 +24,7 @@ body:
         Adding an example is otherwise deliberately mechanical, and
         `bb check:registration` will tell you if you missed one of the five
         places. See
-        [CONTRIBUTING.md](https://github.com/burinc/raygui-jlt/blob/main/CONTRIBUTING.md#adding-an-example-the-five-touchpoints),
+        [CONTRIBUTING.md](https://github.com/jlt-commons/raygui-jlt/blob/main/CONTRIBUTING.md#adding-an-example-the-five-touchpoints),
         and feel free to open a PR directly instead of an issue.
 
   - type: input
