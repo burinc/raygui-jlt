@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}raygui-jlt: raygui controls in Jolt{% endblock %}
+{% block body-class %}home{% endblock %}
+
+{# Page-scoped styles. Deliberately NOT added to the shared screen.css:
+   the demo grid is specific to this project, and screen.css is shared by
+   every b12n site. Uses only the engine's own theme tokens, so it follows
+   light/dark exactly like the rest of the page. Mirrors b12n-raylib-jlt's
+   home.html, whose .demo-grid this project's grid is copied from. #}
+{% block head %}
+<style>
+  .demo-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .demo {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-raised);
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .demo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-bottom: 1px solid var(--border);
+  }
+  .demo figcaption {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    padding: 0.5rem 0.7rem;
+  }
+  .demo:hover { border-color: var(--accent); }
+  .demo:hover figcaption { color: var(--accent); }
+
+  .fact-list { list-style: none; padding: 0; }
+  .fact-list > li {
+    border-left: 2px solid var(--border);
+    padding: 0 0 0 1rem;
+    margin: 0 0 1.25rem;
+  }
+  .fact-list > li:last-child { margin-bottom: 0; }
+  .fact-list h4 { margin: 0 0 0.35rem; font-family: var(--font-mono); }
+
+  .group-counts {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="hero">
+  <div class="hero-inner">
+    <h1>raygui controls in Jolt</h1>
+    <p class="tagline">
+      24 <strong>raygui</strong> examples written in <strong>Jolt</strong>,
+      native Clojure on Chez Scheme, no JVM. They call raygui directly over
+      its C ABI through <code>jolt.ffi</code>: no wrapper library, no codegen,
+      no C shim. Unlike its sibling, raygui is <strong>header-only</strong>:
+      there is no library to install, so this repo vendors the header and
+      builds <code>lib/libraygui.dylib</code> itself.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/guide/example-catalog.html">Browse all 24</a>
+      <a class="btn" href="/guide/index.html">Read the guide</a>
+    </div>
+  </div>
+</header>
+
+<section id="demos">
+  <div class="inner">
+    <h2>A few of them</h2>
+    <div class="demo-grid">
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/style-selector.png" alt="Six vendored .rgs style themes cycling through a row of theme buttons, a button, toggle and slider, a panel, and four live style swatches labeled base, border, text and line, currently on the cyan cyber theme" loading="lazy" width="480">
+        <figcaption>bb style-selector</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/color-picker.png" alt="GuiColorPicker's square-plus-hue-bar control next to the separate square, hue bar and alpha bar it is assembled from, both showing a blue color" loading="lazy" width="480">
+        <figcaption>bb color-picker</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/icon-buttons.png" alt="Four buttons captioned Save, Open, Delete and Settings each carrying an embedded raygui icon, a row of icons drawn directly, and a Play/Next button pair at icon scale 2" loading="lazy" width="480">
+        <figcaption>bb icon-buttons</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/tab-bar.png" alt="A GuiTabBar with README, deps.edn and raygui.clj tabs, deps.edn active, showing its content area and a close-result readout below" loading="lazy" width="480">
+        <figcaption>bb tab-bar</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/floating-window.png" alt="Two draggable floating windows, Mixer with a gain slider and Output with a mute toggle, overlapping with Output drawn on top" loading="lazy" width="480">
+        <figcaption>bb floating-window</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/sliders.png" alt="A GuiSlider handle on a track, a GuiSliderBar filling its track, and a third slider whose value sets the radius of a drawn circle" loading="lazy" width="480">
+        <figcaption>bb sliders</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/message-box.png" alt="A Discard changes confirmation dialog with Cancel and Discard buttons, drawn over a frame counter that keeps advancing behind it" loading="lazy" width="480">
+        <figcaption>bb message-box</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/list-view-ex.png" alt="A GuiListViewEx list of five filenames with raygui.clj selected, next to active, focus and scroll index readouts" loading="lazy" width="480">
+        <figcaption>bb list-view-ex</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/gui-state.png" alt="Rows of GuiSetState buttons in normal, focused, pressed and disabled appearance, a GuiSetAlpha row, a live click counter, and a GuiLock row that ignores clicks" loading="lazy" width="480">
+        <figcaption>bb gui-state</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/scroll-panel.png" alt="A GuiScrollPanel clipping a grid of blue and gray tiles larger than its 300 by 200 frame, with scroll offset and view-rectangle readouts alongside" loading="lazy" width="480">
+        <figcaption>bb scroll-panel</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/color-picker-hsv.png" alt="The HSV color picker next to GuiColorPanelHSV alone, one panel blue and one amber, with their hue, saturation and value readouts below" loading="lazy" width="480">
+        <figcaption>bb color-picker-hsv</figcaption>
+      </a>
+      <a class="demo" href="/guide/example-catalog.html">
+        <img src="/demos/custom-input-box.png" alt="A hand-built two-field dialog prompting for an nREPL host and port with a Use TLS toggle, plus Cancel and Connect buttons" loading="lazy" width="480">
+        <figcaption>bb custom-input-box</figcaption>
+      </a>
+    </div>
+    <p class="group-counts">
+      basics 4 · inputs 5 · collections 5 · containers 4 · dialogs 2 · color 2 · styling 2.
+      <a href="/guide/example-catalog.html">See every one of them</a>.
+    </p>
+  </div>
+</section>
+
+<section id="why" class="surface">
+  <div class="inner">
+    <h2>Why this is interesting</h2>
+    <p>
+      raygui's API is 61 functions that nearly all share one shape: a
+      bounding <code>Rectangle</code> passed <em>by value</em>, application
+      state through a pointer, an <code>int</code> result. Exactly one struct
+      crosses that ABI by value anywhere in the control surface, which is
+      rare enough to be worth explaining outright:
+    </p>
+    <ul class="fact-list">
+      <li>
+        <h4>Rectangle → one scratch buffer</h4>
+        <p>
+          Every control takes its bounds as a 16-byte <code>Rectangle</code>
+          by value. jolt's <code>[:by-value ...]</code> copies those bytes
+          into caller-owned native memory at call time and never retains the
+          pointer, so one module-level scratch <code>Rectangle</code>,
+          rewritten immediately before each call, is safe for all 24
+          examples. No example allocates or frees a <code>Rectangle</code>
+          inside a frame.
+        </p>
+      </li>
+      <li>
+        <h4>GuiScrollPanel → the one exception</h4>
+        <p>
+          The only raygui function taking <em>two</em> by-value
+          <code>Rectangle</code>s in a single call: its own bounds and the
+          size of the content behind it. Clojure evaluates arguments left to
+          right, so writing both through the same scratch buffer would let
+          the second write clobber the first before the call ever happens.
+          <code>scroll-panel</code> gets a second buffer for exactly this.
+        </p>
+      </li>
+      <li>
+        <h4>RAYGUI_APP_AUTO_QUIT_MS / RAYGUI_APP_SHOT → proof without a display</h4>
+        <p>
+          Every preview on this site is a real capture, not a mockup:
+          <code>RAYGUI_APP_AUTO_QUIT_MS</code> closes the window on a timer
+          and <code>RAYGUI_APP_SHOT</code> dumps a frame to PNG first, so a
+          windowed example proves itself unattended. raygui is mouse-driven
+          by definition and synthetic clicks don't actuate a real
+          raylib/GLFW window, so this pair is the only way to verify a
+          control headlessly, not just the convenient one.
+        </p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="inner">
+    <h2>How it fits together</h2>
+    <pre class="mermaid">
+flowchart LR
+  subgraph ex["24 example namespaces"]
+    e["basic-controls · sliders · tab-bar<br/>style-selector · scroll-panel · …"]
+  end
+  subgraph shared["net.b12n.raygui-jlt.raygui: one shared layer"]
+    kw["keyword-argument control API<br/>button! · slider! · panel! · …"]
+    fb["jolt.ffi/defcfn binds<br/>positional, mirroring C"]
+    kw --> fb
+  end
+  lib["lib/libraygui.dylib<br/>built from the vendored header"]
+  rl["system libraylib<br/>already loaded by the jolt process"]
+  e --> kw
+  fb -->|"Rectangle by value, one scratch buffer"| lib
+  lib -->|"GetMousePosition, DrawRectangle, …"| rl
+    </pre>
+    <p>
+      Every example is a small namespace over that one shared layer. Adding
+      one touches exactly five places: the source namespace, a
+      <code>deps.edn</code> alias, a <code>check.clj</code> require, a
+      registry row in <code>scripts/examples_registry.clj</code>, and a
+      <code>bb.edn</code> task.
+    </p>
+  </div>
+</section>
+
+<section id="features" class="surface">
+  <div class="inner">
+    <h2>What's here</h2>
+    <div class="feature-grid">
+      <div class="feat">
+        <h4>Header-only, so this repo builds its own library</h4>
+        <p>raygui ships one header, not a compiled library: no <code>brew install</code>, no package to find. <code>bb lib:build</code> compiles the vendored <code>raygui.h</code> into <code>lib/libraygui.dylib</code>, linked dynamically against the same raylib the process loads.</p>
+      </div>
+      <div class="feat">
+        <h4>One binding layer</h4>
+        <p>All the FFI binds, the keyword-argument control API, and cell handling for all eight cell types live in a single namespace. Examples stay small enough to read in one sitting.</p>
+      </div>
+      <div class="feat">
+        <h4>Reads like Clojure, not like C</h4>
+        <p><code>(rg/button! :x 24 :y 24 :w 120 :h 30 :text "Save")</code>: positional binds at the boundary, keyword wrappers on top.</p>
+      </div>
+      <div class="feat">
+        <h4>Provable without a display</h4>
+        <p><code>RAYGUI_APP_AUTO_QUIT_MS</code> closes the window on a timer and <code>RAYGUI_APP_SHOT</code> dumps a frame to PNG, so a windowed example can prove itself unattended.</p>
+      </div>
+      <div class="feat">
+        <h4>A compile gate over all 24</h4>
+        <p><code>bb check</code> requires every example namespace headlessly. No window, no JVM, and it catches a broken binding across the whole suite at once.</p>
+      </div>
+      <div class="feat">
+        <h4>A screenshot gate, not just a compile gate</h4>
+        <p>A control drawn at the wrong bounds, or a style that never loaded, compiles perfectly and passes <code>bb check</code>. Looking at the actual PNG is the gate that catches it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="inner">
+    <h2>Quickstart</h2>
+    <pre><code class="sh">bb lib:check       # is raylib installed, and is libraygui already built?
+bb lib:build       # …compile the vendored header into lib/libraygui.dylib
+
+bb info            # grouped cheat-sheet of every example
+bb style-selector  # run one (opens a window)
+bb check           # headless compile-check of all 24, no window</code></pre>
+    <p>
+      Needs <code>jolt</code> and a system <code>libraylib</code> (raygui
+      links against it dynamically at build time).
+      <a href="https://babashka.org" target="_blank" rel="noopener">babashka</a>
+      is optional but gives every example a friendly task; without it each one
+      is a <code>jolt -M:&lt;alias&gt;</code> away.
+      raygui.h is vendored at <code>5.0-9-gfbf5d95</code>, zlib licensed, the
+      same license this repo ships under.
+    </p>
+  </div>
+</section>
+{% endblock %}
