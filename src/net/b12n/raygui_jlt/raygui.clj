@@ -310,27 +310,27 @@
   [c v]
   (let [p (live-ptr c)]
     (case (:type c)
-      :float   (ffi/write p :float 0 (double v))
-      :int     (ffi/write p :int 0 (int v))
-      :color   (ffi/write p :uint 0 v)
-      :bool    (ffi/write p :uint8 0 (if v 1 0))
+      :float   (ffi/write p :float (double v) 0)
+      :int     (ffi/write p :int (int v) 0)
+      :color   (ffi/write p :uint v 0)
+      :bool    (ffi/write p :uint8 (if v 1 0) 0)
       :text    (let [size (:size c)
                      bs (.getBytes (str v) "UTF-8")
                      n (min (alength bs) (dec size))]
                  ;; Zero the whole buffer first: raygui edits it in place, so a
                  ;; shorter new value must not leave the old tail behind the NUL
                  ;; for the next edit to resurrect.
-                 (dotimes [i size] (ffi/write p :uint8 i 0))
-                 (dotimes [i n] (ffi/write p :uint8 i (bit-and (aget bs i) 0xff))))
-      :vector2 (do (ffi/write p :float 0 (double (nth v 0)))
-                   (ffi/write p :float 4 (double (nth v 1))))
-      :vector3 (do (ffi/write p :float 0 (double (nth v 0)))
-                   (ffi/write p :float 4 (double (nth v 1)))
-                   (ffi/write p :float 8 (double (nth v 2))))
-      :rect    (do (ffi/write p :float 0 (double (nth v 0)))
-                   (ffi/write p :float 4 (double (nth v 1)))
-                   (ffi/write p :float 8 (double (nth v 2)))
-                   (ffi/write p :float 12 (double (nth v 3)))))
+                 (dotimes [i size] (ffi/write p :uint8 0 i))
+                 (dotimes [i n] (ffi/write p :uint8 (bit-and (aget bs i) 0xff) i)))
+      :vector2 (do (ffi/write p :float (double (nth v 0)) 0)
+                   (ffi/write p :float (double (nth v 1)) 4))
+      :vector3 (do (ffi/write p :float (double (nth v 0)) 0)
+                   (ffi/write p :float (double (nth v 1)) 4)
+                   (ffi/write p :float (double (nth v 2)) 8))
+      :rect    (do (ffi/write p :float (double (nth v 0)) 0)
+                   (ffi/write p :float (double (nth v 1)) 4)
+                   (ffi/write p :float (double (nth v 2)) 8)
+                   (ffi/write p :float (double (nth v 3)) 12)))
     v))
 
 (defn free-cell!
@@ -420,7 +420,7 @@
         p (ffi/alloc n)]
     (try
       (dotimes [i n]
-        (ffi/write p :uint8 i (bit-and (aget bs i) 0xff)))
+        (ffi/write p :uint8 (bit-and (aget bs i) 0xff) i))
       (gui-load-style-from-memory p n)
       n
       (finally (ffi/free p)))))
