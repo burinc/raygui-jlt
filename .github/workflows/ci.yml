@@ -42,7 +42,7 @@ env:
   # repo changed and not that jolt did. Floor is 0.7.23, where
   # `[:by-value [:struct ...]]` landed, which every Rectangle-taking binding
   # depends on. Verified locally against the full suite before pinning.
-  JOLT_VERSION: "v0.7.25"
+  JOLT_VERSION: "0.8.0"
   # Pinned so a red build means this repo changed, not raylib.
   RAYLIB_REF: "6.0"
 
