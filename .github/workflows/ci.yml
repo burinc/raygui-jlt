@@ -204,6 +204,14 @@ jobs:
       # :require, so an example registered in some places but not all of them
       # fails here rather than passing silently. Needs no jolt, no raylib and
       # no libraygui.
+      # The only gate here that EXECUTES code rather than compiling it. Every
+      # 4-argument ffi/write in this project is written in jolt 0.8.0's argument
+      # order, and a runtime with the old order writes to the wrong address and
+      # reports nothing, so a compile-only gate cannot see it. Measured: this
+      # suite exits 0 on jolt 0.8.1 and exits 1 on v0.7.29.
+      - name: Unit suite
+        run: bb test
+
       - name: Registration touchpoints
         run: bb check:registration
 

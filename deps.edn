@@ -21,7 +21,9 @@
                 :darwin ["lib/libraygui.dylib"]
                 :linux  ["lib/libraygui.so"]}]
 
- :aliases {:check {:main-opts ["-m" "net.b12n.raygui-jlt.check"]}
+ :aliases {:test   {:extra-paths ["test"]
+                    :main-opts   ["-m" "net.b12n.raygui-jlt.test-runner"]}   ; unit suite: ffi/write argument order
+           :check {:main-opts ["-m" "net.b12n.raygui-jlt.check"]}
            :basic-controls {:main-opts ["-m" "net.b12n.raygui-jlt.basic-controls"]}
            :icon-buttons {:main-opts ["-m" "net.b12n.raygui-jlt.icon-buttons"]}
            :labels-lines {:main-opts ["-m" "net.b12n.raygui-jlt.labels-lines"]}

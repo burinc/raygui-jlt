@@ -189,6 +189,10 @@
        (println "")
        (println "Both present. `bb check` will compile the suite.")))}
 
+  test
+  {:doc "Unit suite: ffi/write argument order"
+   :task (shell "jolt" "-M:test")}
+
   check
   {:doc "Headless compile-check of every example (no window)"
    :task (do (ensure-lib!) (shell "jolt" "-M:check"))}
