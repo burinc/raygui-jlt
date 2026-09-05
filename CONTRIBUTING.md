@@ -130,7 +130,10 @@ sweeping it in.
 
 ## Licensing
 
-This project is released under the zlib/libpng license, the same license as raygui
-and raylib themselves. By contributing, you agree your contribution is licensed
-under those terms. If your example is a port of one of raygui's own example
-programs, please say so in your PR so the attribution in `NOTICE` stays accurate.
+This project is released under the Eclipse Public License 2.0 (`EPL-2.0`), the
+licence used across jlt-commons; it was zlib until 2026-09-05. By contributing, you
+agree your contribution is licensed under those terms. `vendor/raygui.h` stays
+zlib, as upstream ships it. If your example is a port of one of raygui's own example
+programs, please say so in your PR so the attribution in `NOTICE` stays accurate:
+zlib requires altered sources to be plainly marked, and `NOTICE` is where that
+happens.

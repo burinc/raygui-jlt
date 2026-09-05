@@ -198,6 +198,9 @@ those are headless.
 
 ## License and attribution
 
-Released under the **zlib/libpng license**; see [`LICENSE`](LICENSE). Third-party
-attribution, including the vendored raygui header and the ported examples, lives in
-[`NOTICE`](NOTICE).
+Released under the [Eclipse Public License 2.0](LICENSE), matching the rest of
+jlt-commons and jolt itself. SPDX identifier: `EPL-2.0`. It was zlib until
+2026-09-05, chosen to match raygui and raylib. Third-party attribution, including
+the vendored raygui header and the ported examples, lives in [`NOTICE`](NOTICE);
+`vendor/raygui.h` and the ported examples keep raygui's zlib terms, which EPL 2.0
+does not and cannot change.

@@ -9,6 +9,12 @@ Examples read at <https://jlt-commons.github.io/raygui-jlt/>.
 
 ## Unreleased
 
+- **Relicensed from zlib to the Eclipse Public License 2.0**, matching the rest of
+  jlt-commons and jolt itself. zlib was chosen to match raygui and raylib, but one
+  exception across the organisation was harder to explain than that symmetry was
+  worth. `vendor/raygui.h` and the four ported examples keep raygui's zlib terms,
+  now reproduced in `NOTICE`, and nothing that arrived under another licence is
+  relicensed.
 - **The project moved to the jlt-commons organization**, from `burinc/raygui-jlt`
   to `jlt-commons/raygui-jlt`. GitHub redirects the old URLs, so existing clones
   and links keep working.
